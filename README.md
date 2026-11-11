@@ -54,3 +54,8 @@ KNN cần tọa độ tư thế do YOLO11-Pose trích xuất, không nhận ản
 `KNN tư thế/duyen_v1/metrics.json` chứa đánh giá theo cách chia ảnh; `danh_gia_theo_video.json` chứa ba lượt để riêng từng nhóm video; biểu đồ tổng hợp nằm trong `bieu_do/`. Các chỉ số phân loại chỉ tính box nhãn ghép được với tư thế. Train, validation và test theo cách chia ảnh có các khung hình cùng nguồn video; kết quả không phải kiểm thử độc lập theo video. Chỉ có ba nhóm video trong phép đánh giá theo nhóm.
 
 Bộ bàn giao không bao gồm dataset và video gốc. `MANIFEST.json` liệt kê kích thước và SHA-256 của các tệp chính. Mô hình bài báo và mã xử lý liên quan lấy từ [repository tác giả](https://github.com/arifbdu/Suspicious-Activity-Detection-Using-YOLO11-Pose-Estimation). Kiểm tra giấy phép tương ứng của mô hình, dữ liệu và Ultralytics khi phân phối hoặc sử dụng ngoài phạm vi dự án.
+
+## Hướng dẫn cho thành viên
+
+- [Làm việc với GitHub](HUONG_DAN_GITHUB.md): clone, tạo nhánh, commit, push và Pull Request.
+- [Thêm mô hình mới](HUONG_DAN_THEM_MODEL.md): đăng ký YOLO Detect hoặc KNN, hiển thị trên web và kiểm thử.
