@@ -1,0 +1,228 @@
+{
+  "method": "leave-one-filename-derived-video-out",
+  "k": 1,
+  "k_selection": "fixed from paper; not selected on held-out group",
+  "group_counts": {
+    "IMG_3485_MOV": {
+      "images": 1935,
+      "gt": 21092,
+      "matched": 14853,
+      "gt_cheating": 3525
+    },
+    "IMG_4719_MOV": {
+      "images": 1417,
+      "gt": 14066,
+      "matched": 9615,
+      "gt_cheating": 1024
+    },
+    "IMG_9313_MOV": {
+      "images": 914,
+      "gt": 16458,
+      "matched": 6610,
+      "gt_cheating": 844
+    }
+  },
+  "folds": {
+    "IMG_3485_MOV": {
+      "group_counts": {
+        "images": 1935,
+        "gt": 21092,
+        "matched": 14853,
+        "gt_cheating": 3525
+      },
+      "metrics_conditional_on_matched_pose": {
+        "accuracy": 0.8053591866962904,
+        "precision_cheating": 0.3875,
+        "recall_cheating": 0.20386847195357832,
+        "f1_cheating": 0.26717363751584283,
+        "confusion_matrix_labels_normal_cheating": [
+          [
+            11435,
+            833
+          ],
+          [
+            2058,
+            527
+          ]
+        ],
+        "per_class": {
+          "Normal": {
+            "precision": 0.8474764692803676,
+            "recall": 0.9320997717639387,
+            "f1-score": 0.8877760956484608,
+            "support": 12268.0
+          },
+          "Cheating": {
+            "precision": 0.3875,
+            "recall": 0.20386847195357832,
+            "f1-score": 0.26717363751584283,
+            "support": 2585.0
+          },
+          "accuracy": 0.8053591866962904,
+          "macro avg": {
+            "precision": 0.6174882346401838,
+            "recall": 0.5679841218587585,
+            "f1-score": 0.5774748665821519,
+            "support": 14853.0
+          },
+          "weighted avg": {
+            "precision": 0.7674226637804853,
+            "recall": 0.8053591866962904,
+            "f1-score": 0.7797671173765415,
+            "support": 14853.0
+          }
+        }
+      }
+    },
+    "IMG_4719_MOV": {
+      "group_counts": {
+        "images": 1417,
+        "gt": 14066,
+        "matched": 9615,
+        "gt_cheating": 1024
+      },
+      "metrics_conditional_on_matched_pose": {
+        "accuracy": 0.8377535101404057,
+        "precision_cheating": 0.2617135207496653,
+        "recall_cheating": 0.46108490566037735,
+        "f1_cheating": 0.3339026473099915,
+        "confusion_matrix_labels_normal_cheating": [
+          [
+            7664,
+            1103
+          ],
+          [
+            457,
+            391
+          ]
+        ],
+        "per_class": {
+          "Normal": {
+            "precision": 0.9437261421007265,
+            "recall": 0.8741872932588115,
+            "f1-score": 0.9076267171956419,
+            "support": 8767.0
+          },
+          "Cheating": {
+            "precision": 0.2617135207496653,
+            "recall": 0.46108490566037735,
+            "f1-score": 0.3339026473099915,
+            "support": 848.0
+          },
+          "accuracy": 0.8377535101404057,
+          "macro avg": {
+            "precision": 0.6027198314251959,
+            "recall": 0.6676360994595945,
+            "f1-score": 0.6207646822528167,
+            "support": 9615.0
+          },
+          "weighted avg": {
+            "precision": 0.883575678980009,
+            "recall": 0.8377535101404057,
+            "f1-score": 0.8570268200283998,
+            "support": 9615.0
+          }
+        }
+      }
+    },
+    "IMG_9313_MOV": {
+      "group_counts": {
+        "images": 914,
+        "gt": 16458,
+        "matched": 6610,
+        "gt_cheating": 844
+      },
+      "metrics_conditional_on_matched_pose": {
+        "accuracy": 0.9143721633888049,
+        "precision_cheating": 0.2692307692307692,
+        "recall_cheating": 0.05405405405405406,
+        "f1_cheating": 0.09003215434083602,
+        "confusion_matrix_labels_normal_cheating": [
+          [
+            6016,
+            76
+          ],
+          [
+            490,
+            28
+          ]
+        ],
+        "per_class": {
+          "Normal": {
+            "precision": 0.9246849062403935,
+            "recall": 0.9875246224556796,
+            "f1-score": 0.955072233687887,
+            "support": 6092.0
+          },
+          "Cheating": {
+            "precision": 0.2692307692307692,
+            "recall": 0.05405405405405406,
+            "f1-score": 0.09003215434083602,
+            "support": 518.0
+          },
+          "accuracy": 0.9143721633888049,
+          "macro avg": {
+            "precision": 0.5969578377355813,
+            "recall": 0.5207893382548668,
+            "f1-score": 0.5225521940143615,
+            "support": 6610.0
+          },
+          "weighted avg": {
+            "precision": 0.8733195139603653,
+            "recall": 0.9143721633888049,
+            "f1-score": 0.8872824059871649,
+            "support": 6610.0
+          }
+        }
+      }
+    }
+  },
+  "pooled_metrics_conditional_on_matched_pose": {
+    "accuracy": 0.8385674753845164,
+    "precision_cheating": 0.3198106828938472,
+    "recall_cheating": 0.23943305492280437,
+    "f1_cheating": 0.2738457084961644,
+    "confusion_matrix_labels_normal_cheating": [
+      [
+        25115,
+        2012
+      ],
+      [
+        3005,
+        946
+      ]
+    ],
+    "per_class": {
+      "Normal": {
+        "precision": 0.8931365576102418,
+        "recall": 0.9258303535223209,
+        "f1-score": 0.9091896392564303,
+        "support": 27127.0
+      },
+      "Cheating": {
+        "precision": 0.3198106828938472,
+        "recall": 0.23943305492280437,
+        "f1-score": 0.2738457084961644,
+        "support": 3951.0
+      },
+      "accuracy": 0.8385674753845164,
+      "macro avg": {
+        "precision": 0.6064736202520444,
+        "recall": 0.5826317042225626,
+        "f1-score": 0.5915176738762973,
+        "support": 31078.0
+      },
+      "weighted avg": {
+        "precision": 0.8202486455501198,
+        "recall": 0.8385674753845164,
+        "f1-score": 0.8284172642505158,
+        "support": 31078.0
+      }
+    }
+  },
+  "limitations": [
+    "Three groups inferred from filename; confirm actual source videos.",
+    "Each fold is evaluated only on matched labelled boxes; pose misses and unmatched predictions are excluded.",
+    "Very few videos; group folds are not a separate independent final test."
+  ]
+}

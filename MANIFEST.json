@@ -1,0 +1,50 @@
+{
+  "Kiem thu mo hinh/app.py": {
+    "size_bytes": 5262,
+    "sha256": "b615a426603731bb82b725ea103ec087fe5aded49928e573231671d4e9d46ad4"
+  },
+  "Kiem thu mo hinh/index.html": {
+    "size_bytes": 19082,
+    "sha256": "5f4f8b6507a0203b6c670540fc07a4a5a60e675175799a9f22f8f5b4474cf1c8"
+  },
+  "Kiem thu mo hinh/paper_detector.py": {
+    "size_bytes": 6808,
+    "sha256": "e603d759471625959471e53e233df16f20a6efc6f49eb1e9d715d72419d9fffc"
+  },
+  "Kiem thu mo hinh/models/yolo11n-pose.pt": {
+    "size_bytes": 6255593,
+    "sha256": "869e83fcdffdc7371fa4e34cd8e51c838cc729571d1635e5141e3075e9319dc0"
+  },
+  "Kiem thu mo hinh/models/best_model.pkl": {
+    "size_bytes": 850238,
+    "sha256": "6cc8f289b28e6c09d97e35e11f5f0c817bb0742e782add3cab201c462c388ce8"
+  },
+  "Training YOLO/best.pt": {
+    "size_bytes": 52995621,
+    "sha256": "74b8364c94ab3d5f19a305f7114623ec89c370ac36c5fb870ca20ea5f431dc45"
+  },
+  "GIan lan/runs/detect/train/weights/best.pt": {
+    "size_bytes": 5479635,
+    "sha256": "87e80e09441906ef9b793da888e5691b13be74ffbe55540d4e8ca9154a61697e"
+  },
+  "KNN tư thế/duyen_v1/knn_duyen_v1.joblib": {
+    "size_bytes": 11295168,
+    "sha256": "c781010d5c0fa97d9b4c926d278f089add56452ab744e7a539a273b17f2fc6b1"
+  },
+  "KNN tư thế/duyen_v1/metrics.json": {
+    "size_bytes": 9104,
+    "sha256": "0137c81da56ac8bab97b70c1b6a83b7d5c8c4445b7dd61387114b687b65dbb31"
+  },
+  "KNN tư thế/duyen_v1/danh_gia_theo_video.json": {
+    "size_bytes": 6265,
+    "sha256": "bdfa6383a74f1407593aec9bfbd931cacfb7b141000ef8ff4e9da934e26a4fbb"
+  },
+  "KNN tư thế/duyen_v1/bieu_do/00_tong_quan.pdf": {
+    "size_bytes": 73057,
+    "sha256": "626c6106b1d6a3b1b276f58f692f7798078e4161e7cbf3e2808702964e209e04"
+  },
+  "KNN tư thế/duyen_v1/bieu_do/00_tong_quan.png": {
+    "size_bytes": 396200,
+    "sha256": "6f7628e5311037b0a9b80f7d1a535e26c6d3805fe667fb4df8fa7aa07ecba2a2"
+  }
+}
