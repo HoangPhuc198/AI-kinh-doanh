@@ -1,11 +1,11 @@
 {
   "Kiem thu mo hinh/app.py": {
-    "size_bytes": 6526,
-    "sha256": "8387698577a459a9418cd3ee9042fbd13eed99e52a2436abf7a6d2bda6475b68"
+    "size_bytes": 6707,
+    "sha256": "7eebecb58140892bb7135a574214ee6b2005e752e05178998d75ced41504ce52"
   },
   "Kiem thu mo hinh/index.html": {
-    "size_bytes": 19191,
-    "sha256": "841a3eb22984ddf5c0ac489aa1de9461b09177ca19377ccbed18fa693438ccf6"
+    "size_bytes": 19409,
+    "sha256": "48e329577eec99da22428b3ea7a6a67fb89855afcd97f469cec8bafcf51f5c98"
   },
   "Kiem thu mo hinh/paper_detector.py": {
     "size_bytes": 6808,
@@ -48,15 +48,31 @@
     "sha256": "6f7628e5311037b0a9b80f7d1a535e26c6d3805fe667fb4df8fa7aa07ecba2a2"
   },
   "Kiem thu mo hinh/report.html": {
-    "size_bytes": 10110,
-    "sha256": "3fa8050040dbc6fa13f62eaad6f12b3ee8ba6557e9b367015060e8b582d09485"
+    "size_bytes": 10720,
+    "sha256": "03d8844c4a4bce12b5c33d9d0466ec8b375acf9a7183ff5829748fc9906b0012"
   },
   "Kiem thu mo hinh/report_data.json": {
     "size_bytes": 464,
     "sha256": "92152a7397524684c473a15d5fbaf260d42212005a0c2c047e3cd2d6aa71cae1"
   },
   "README.md": {
-    "size_bytes": 4591,
-    "sha256": "fa07f4064519f08aafa29744830f76de54fa414d028fd294088d22e82eeecda9"
+    "size_bytes": 5270,
+    "sha256": "d976acf776371f00a8b5be6f9cb93f7e4b9294ca7d2b2cb21e843dffc7860ed2"
+  },
+  "yolov11-duyen/train/weights/best.pt": {
+    "size_bytes": 5478106,
+    "sha256": "84adcd9e1ae289bdba56208f482ac7380b29f2bacdb5f56a20eb8f72903dbe27"
+  },
+  "yolov11-duyen/test_metrics.json": {
+    "size_bytes": 209,
+    "sha256": "e5bc7747786cc071752e8c4cbbbbf14096c5aedba93e0e95b085c27711d0d951"
+  },
+  "yolov11-duyen/run_config.json": {
+    "size_bytes": 562,
+    "sha256": "0064589f73f30722040d58f5f5470d203378cd587bb7fa6486dc2c835dd2e1e6"
+  },
+  "yolov11-duyen/dataset_summary.json": {
+    "size_bytes": 653,
+    "sha256": "0a5db5df6901b9dabe14ad8e39cc97917bc32e7e511f96b566405c3067a2ea11"
   }
 }

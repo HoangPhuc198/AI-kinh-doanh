@@ -1,6 +1,6 @@
 # ExamVision — bản bàn giao
 
-Ứng dụng chạy trên máy để thử ảnh hoặc video với bốn lựa chọn mô hình. Nhận diện là dấu hiệu cần xem xét; không dùng dự đoán làm kết luận gian lận.
+Ứng dụng chạy trên máy để thử ảnh hoặc video với năm lựa chọn mô hình. Nhận diện là dấu hiệu cần xem xét; không dùng dự đoán làm kết luận gian lận.
 
 ## Chuẩn bị
 
@@ -46,6 +46,7 @@ Video phát liên tục còn phân tích được thực hiện theo tốc độ
 | GIan lan | `GIan lan/runs/detect/train/weights/best.pt` |
 | KNN bài báo | `Kiem thu mo hinh/models/yolo11n-pose.pt` + `Kiem thu mo hinh/models/best_model.pkl` |
 | KNN dataset Duyên | `Kiem thu mo hinh/models/yolo11n-pose.pt` + `KNN tư thế/duyen_v1/knn_duyen_v1.joblib` |
+| YOLO11 Duyên | `yolov11-duyen/train/weights/best.pt` |
 
 KNN cần tọa độ tư thế do YOLO11-Pose trích xuất, không nhận ảnh trực tiếp. Tệp pickle/joblib chỉ nên được nạp từ nguồn tin cậy. Bộ bàn giao sử dụng scikit-learn 1.7.2 để phù hợp mô hình KNN.
 
@@ -63,3 +64,7 @@ Bộ bàn giao không bao gồm dataset và video gốc. `MANIFEST.json` liệt 
 ## Trang báo cáo
 
 Mở ứng dụng và chọn **Báo cáo** trên thanh đầu trang, hoặc truy cập `http://127.0.0.1:8765/bao-cao`. Báo cáo hiển thị số ảnh theo tập, metric đã lưu và các mô hình được cấu hình. Số liệu không tự đồng bộ từ Roboflow; metric Duyên lấy từ các tệp JSON trong `KNN tư thế/duyen_v1`, còn số liệu Graduation và GIan lan là bản chụp trong `Kiem thu mo hinh/report_data.json` và cần cập nhật khi dữ liệu hoặc kết quả huấn luyện thay đổi. Trạng thái đủ tệp không xác nhận mô hình chạy thành công.
+
+## YOLO11 Duyên
+
+Chọn **YOLO11 Duyên** trên web để chạy `yolov11-duyen/train/weights/best.pt`. Đây là mô hình YOLO11n detection 2 lớp (`Normal`, `Cheating`), huấn luyện từ trọng số ngẫu nhiên trên Duyên v1; không dùng bước Pose hoặc KNN. Trên trang Báo cáo, kết quả test của model lấy từ `yolov11-duyen/test_metrics.json`. Các metric là của detection, không so sánh trực tiếp với accuracy/F1 KNN. Để chạy bằng bản final, thư mục `yolov11-duyen/` đã chứa trọng số và metadata cần thiết; không cần toàn bộ ảnh huấn luyện.

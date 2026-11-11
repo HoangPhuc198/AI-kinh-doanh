@@ -1,0 +1,33 @@
+{
+  "source": "/kaggle/input/datasets/manhco/dataset-duyen/dataset",
+  "mapping": {
+    "0": 1,
+    "1": 0,
+    "2": 1,
+    "3": 0
+  },
+  "splits": {
+    "train": {
+      "images": 2986,
+      "polygons": 27540,
+      "normal": 32276,
+      "cheating": 3745,
+      "boxes": 8481
+    },
+    "valid": {
+      "images": 853,
+      "boxes": 2206,
+      "normal": 9300,
+      "cheating": 1108,
+      "polygons": 8202
+    },
+    "test": {
+      "images": 427,
+      "polygons": 4033,
+      "normal": 4647,
+      "cheating": 540,
+      "boxes": 1154
+    }
+  },
+  "note": "Polygon chuyển thành bounding box bao quanh; dữ liệu gốc không thay đổi."
+}

@@ -1,0 +1,18 @@
+{
+  "dataset_root": "/kaggle/input/datasets/manhco/dataset-duyen/dataset",
+  "output_root": "/kaggle/working/duyen_yolo11",
+  "mode": "scratch",
+  "epochs": 100,
+  "imgsz": 640,
+  "batch": 16,
+  "patience": 30,
+  "workers": 2,
+  "device": "0",
+  "seed": 42,
+  "prepare_only": false,
+  "dataset_source": "/kaggle/input/datasets/manhco/dataset-duyen/dataset",
+  "dataset_yaml": "/kaggle/working/duyen_yolo11/scratch_20261111T103234_409746Z/dataset_2class/data.yaml",
+  "ultralytics_version": "8.3.185",
+  "torch_version": "2.11.0+cu130",
+  "cuda_available": true
+}

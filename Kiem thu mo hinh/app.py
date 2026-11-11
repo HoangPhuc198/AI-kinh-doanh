@@ -10,6 +10,7 @@ PROJECT = ROOT.parent
 MODELS = {
     'training': ('Training YOLO', PROJECT/'Training YOLO/best.pt'),
     'gianlan': ('GIan lan', PROJECT/'GIan lan/runs/detect/train/weights/best.pt'),
+    'yolo_duyen': ('YOLO11 Duyên', PROJECT/'yolov11-duyen/train/weights/best.pt'),
     'paper': ('KNN bài báo', ROOT/'models/yolo11n-pose.pt'),
     'duyen': ('KNN dataset Duyên', PROJECT/'KNN tư thế/duyen_v1/knn_duyen_v1.joblib'),
 }
@@ -59,7 +60,9 @@ def report_data():
         models.append({'key': key, 'name': name, 'available': all(p.is_file() for p in dependencies),
                        'kind': 'YOLO11-Pose + KNN' if key in ('paper', 'duyen') else 'YOLO detection',
                        'path': str(path.relative_to(PROJECT))})
-    return {'models': models, 'duyen': metrics, 'video_evaluation': videos, 'snapshots': snapshots}
+    return {'models': models, 'duyen': metrics, 'video_evaluation': videos,
+            'yolo_duyen_test': read_json(PROJECT/'yolov11-duyen/test_metrics.json'),
+            'snapshots': snapshots}
 
 class Handler(BaseHTTPRequestHandler):
     def respond(self, status, body, typ='application/json; charset=utf-8'):
