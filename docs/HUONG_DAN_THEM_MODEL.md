@@ -15,7 +15,7 @@ Hiện tại web **không tự phát hiện mô hình mới**. Khi thêm file tr
 
 ### B1. Khai báo mô hình ở máy chủ
 
-Mở `Kiem thu mo hinh/app.py`, tìm từ điển `MODELS` và thêm **một dòng bên trong** từ điển:
+Mở `app/app.py`, tìm từ điển `MODELS` và thêm **một dòng bên trong** từ điển:
 
 ```python
 'model_moi': ('YOLO mới', PROJECT / 'models' / 'model_moi.pt'),
@@ -25,7 +25,7 @@ Mở `Kiem thu mo hinh/app.py`, tìm từ điển `MODELS` và thêm **một dò
 
 ### B2. Thêm ô chọn trên web
 
-Mở `Kiem thu mo hinh/index.html`, tìm các ô `<label class="model">` và thêm ngay sau một ô hiện có:
+Mở `app/index.html`, tìm các ô `<label class="model">` và thêm ngay sau một ô hiện có:
 
 ```html
 <label class="model">
@@ -47,7 +47,7 @@ Vẫn trong `index.html`, tìm `let names={...}` trong `startLive` và thêm và
 model_moi: 'YOLO mới',
 ```
 
-Ví dụ, nếu dòng hiện có kết thúc bằng `duyen:'KNN dataset Duyên'`, thêm dấu phẩy rồi thêm mục mới trước dấu `}`. Không xóa các mục cũ. Nếu bỏ qua bước này, tên mô hình sẽ không hiển thị đúng ở danh sách video.
+Thêm mục mới vào đối tượng `names` trước dấu `}`. Không xóa các mục cũ. Nếu bỏ qua bước này, tên mô hình sẽ không hiển thị đúng ở danh sách video.
 
 ## C. Thêm KNN tư thế `.joblib` hoặc `.pkl`
 
@@ -55,7 +55,7 @@ Mô hình KNN **không nhận ảnh trực tiếp**. Nhánh KNN hiện tại dù
 
 ### C1. Đăng ký file
 
-Đặt ví dụ `knn_moi.joblib` tại `models/` ở gốc repository. Trong `Kiem thu mo hinh/app.py`, thêm vào `MODELS`:
+Đặt ví dụ `knn_moi.joblib` tại `models/` ở gốc repository. Trong `app/app.py`, thêm vào `MODELS`:
 
 ```python
 'knn_moi': ('KNN mới', PROJECT / 'models' / 'knn_moi.joblib'),
@@ -87,7 +87,7 @@ Cách này giữ `paper` dùng KNN gốc của bài báo và cho `duyen`/`knn_mo
 
 ### C3. Thêm điều khiển giao diện
 
-Thêm ô chọn trong `index.html`:
+Thêm ô chọn trong `app/index.html`:
 
 ```html
 <label class="model">
@@ -109,15 +109,15 @@ KNN tương thích sẽ hiển thị box, các điểm/đường tư thế và n
 1. Lưu file; **dừng server cũ bằng Ctrl+C rồi chạy lại** từ gốc repository:
 
    ```bash
-   python "Kiem thu mo hinh/app.py"
+   python "app/app.py"
    ```
 
-   Trên Windows, nếu dùng môi trường `.venv` như README mà chưa kích hoạt, thay lệnh trên bằng `.\.venv\Scripts\python.exe "Kiem thu mo hinh\app.py"`.
+   Trên Windows, nếu dùng môi trường `.venv` như README mà chưa kích hoạt, thay lệnh trên bằng `.\.venv\Scripts\python.exe "app\app.py"`.
 
 2. Tải lại trang `http://127.0.0.1:8765`. Kiểm tra có ô chọn mô hình mới. Chỉ chọn mô hình đó, thử **một ảnh và một video**; nhấn phát video và chọn đúng tên tại mục **Hiển thị**.
 3. So sánh nhãn/box trên web với lệnh inference gốc của mô hình trên cùng ảnh. Với KNN, kiểm tra đủ box, 17 điểm và ánh xạ `0/1`; xem lại điều kiện không phát hiện người.
 4. Kiểm tra vẫn chạy được ít nhất một mô hình cũ và xem thông báo lỗi/terminal. Nếu thay môi trường, cập nhật `requirements.txt` phù hợp; `scikit-learn` phải tương thích phiên bản đã lưu KNN. Kiểm tra `pip install` trong môi trường sạch khi bàn giao.
-5. Ghi tên mô hình, nguồn, dữ liệu huấn luyện, các lớp, phiên bản thư viện, cách đánh giá, giới hạn và giấy phép. Nếu cập nhật các tệp đã được liệt kê trong `MANIFEST.json`, cập nhật lại kích thước và SHA-256; manifest hiện tại không tự cập nhật.
+5. Ghi tên mô hình, nguồn, dữ liệu huấn luyện, các lớp, phiên bản thư viện, cách đánh giá, giới hạn và giấy phép. Nếu thêm hoặc cập nhật tệp trong gói bàn giao, cập nhật lại kích thước và SHA-256; manifest hiện tại không tự cập nhật.
 6. Làm theo [hướng dẫn GitHub](HUONG_DAN_GITHUB.md) để commit, push và tạo Pull Request.
 
 ## E. Lỗi thường gặp

@@ -27,8 +27,8 @@ def get_models(classifier_path=None):
     if choice=='auto': device='0' if torch.cuda.is_available() else 'cpu'
     elif choice in ('cpu','mps') or choice.isdigit():device=choice
     else:device='cpu'
-    classifier=joblib.load(classifier_path if classifier_path else BASE/'models'/'best_model.pkl')
-    pose=YOLO(str(BASE/'models'/'yolo11n-pose.pt'))
+    classifier=joblib.load(classifier_path if classifier_path else BASE.parent/'models'/'paper_knn.pkl')
+    pose=YOLO(str(BASE.parent/'models'/'yolo11n-pose.pt'))
     print(f'[Proctor-AI] YOLO device: {device}; stride: {env_int("FRAME_STRIDE",1,1,60)}; imgsz: {env_int("YOLO_IMGSZ",416,256,1280)}',flush=True)
     return pose, classifier, device
 

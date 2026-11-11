@@ -8,11 +8,11 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent
 PROJECT = ROOT.parent
 MODELS = {
-    'training': ('Training YOLO', PROJECT/'Training YOLO/best.pt'),
-    'gianlan': ('GIan lan', PROJECT/'GIan lan/runs/detect/train/weights/best.pt'),
-    'yolo_duyen': ('YOLO11 Duyên', PROJECT/'yolov11-duyen/train/weights/best.pt'),
-    'paper': ('KNN bài báo', ROOT/'models/yolo11n-pose.pt'),
-    'duyen': ('KNN dataset Duyên', PROJECT/'KNN tư thế/duyen_v1/knn_duyen_v1.joblib'),
+    'training': ('Training YOLO', PROJECT/'models/training_yolo.pt'),
+    'gianlan': ('GIan lan', PROJECT/'models/gian_lan.pt'),
+    'yolo_duyen': ('YOLO11 Duyên', PROJECT/'models/yolo11_duyen.pt'),
+    'paper': ('KNN bài báo', PROJECT/'models/yolo11n-pose.pt'),
+    'duyen': ('KNN dataset Duyên', PROJECT/'models/duyen_knn.joblib'),
 }
 cache = {}
 
@@ -47,21 +47,21 @@ def report_data():
             return json.loads(path.read_text(encoding='utf-8'))
         except (OSError, ValueError):
             return None
-    metrics = read_json(PROJECT/'KNN tư thế/duyen_v1/metrics.json')
-    videos = read_json(PROJECT/'KNN tư thế/duyen_v1/danh_gia_theo_video.json')
-    snapshots = read_json(ROOT/'report_data.json') or {}
+    metrics = read_json(PROJECT/'reports/knn_duyen/metrics.json')
+    videos = read_json(PROJECT/'reports/knn_duyen/video_evaluation.json')
+    snapshots = read_json(PROJECT/'reports/snapshots.json') or {}
     models = []
     for key, (name, path) in MODELS.items():
         dependencies = [path]
         if key in ('paper', 'duyen'):
-            dependencies.append(ROOT/'models/yolo11n-pose.pt')
+            dependencies.append(PROJECT/'models/yolo11n-pose.pt')
         if key == 'paper':
-            dependencies.append(ROOT/'models/best_model.pkl')
+            dependencies.append(PROJECT/'models/paper_knn.pkl')
         models.append({'key': key, 'name': name, 'available': all(p.is_file() for p in dependencies),
                        'kind': 'YOLO11-Pose + KNN' if key in ('paper', 'duyen') else 'YOLO detection',
                        'path': str(path.relative_to(PROJECT))})
     return {'models': models, 'duyen': metrics, 'video_evaluation': videos,
-            'yolo_duyen_test': read_json(PROJECT/'yolov11-duyen/test_metrics.json'),
+            'yolo_duyen_test': read_json(PROJECT/'reports/yolo11_duyen/test_metrics.json'),
             'snapshots': snapshots}
 
 class Handler(BaseHTTPRequestHandler):

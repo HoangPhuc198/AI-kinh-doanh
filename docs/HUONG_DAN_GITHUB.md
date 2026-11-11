@@ -13,7 +13,7 @@ git clone https://github.com/mduyen035/ExamVision_Final.git
 cd ExamVision_Final
 ```
 
-Cài môi trường Python và chạy ứng dụng theo [README](README.md). `git clone` đã tải các mô hình đang có trong repository; không cần tạo lại file `.pt` hoặc `.joblib` để chạy bốn lựa chọn hiện tại.
+Cài môi trường Python và chạy ứng dụng theo [README](../README.md). `git clone` đã tải các mô hình đang có trong repository; không cần tạo lại file `.pt` hoặc `.joblib` để chạy năm lựa chọn hiện tại.
 
 ## 2. Tạo nhánh cho thay đổi mới
 
@@ -45,7 +45,7 @@ git diff
 Ví dụ thêm một YOLO Detect trong `models/model_moi.pt`, sau khi đã sửa hai file web:
 
 ```bash
-git add "models/model_moi.pt" "Kiem thu mo hinh/app.py" "Kiem thu mo hinh/index.html"
+git add "models/model_moi.pt" "app/app.py" "app/index.html"
 git diff --cached --stat
 git commit -m "Add new detection model"
 ```
@@ -69,7 +69,7 @@ Không cần tạo lại repository mỗi lần có mô hình mới. Lần sau t
 
 ## 5. File trọng số lớn
 
-File `Training YOLO/best.pt` hiện khoảng 50,5 MiB và GitHub đã cảnh báo vì vượt mức khuyến nghị 50 MiB. GitHub chặn file Git thông thường lớn hơn 100 MiB. Nếu mô hình mới lớn, kiểm tra kích thước **trước khi commit**; với file vượt giới hạn cần dùng Git LFS hoặc nơi lưu trọng số phù hợp theo quy định nhóm. Git LFS có hạn mức lưu trữ/băng thông riêng và các thành viên cần cài Git LFS trước khi clone.
+File `models/training_yolo.pt` hiện khoảng 50,5 MiB và GitHub đã cảnh báo vì vượt mức khuyến nghị 50 MiB. GitHub chặn file Git thông thường lớn hơn 100 MiB. Nếu mô hình mới lớn, kiểm tra kích thước **trước khi commit**; với file vượt giới hạn cần dùng Git LFS hoặc nơi lưu trọng số phù hợp theo quy định nhóm. Git LFS có hạn mức lưu trữ/băng thông riêng và các thành viên cần cài Git LFS trước khi clone.
 
 Ví dụ cho **một file mới**, sau khi đã cài Git LFS:
 
