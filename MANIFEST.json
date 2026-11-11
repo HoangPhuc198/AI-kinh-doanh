@@ -1,11 +1,11 @@
 {
   "Kiem thu mo hinh/app.py": {
-    "size_bytes": 5262,
-    "sha256": "b615a426603731bb82b725ea103ec087fe5aded49928e573231671d4e9d46ad4"
+    "size_bytes": 6526,
+    "sha256": "8387698577a459a9418cd3ee9042fbd13eed99e52a2436abf7a6d2bda6475b68"
   },
   "Kiem thu mo hinh/index.html": {
-    "size_bytes": 19082,
-    "sha256": "3eaa3be41e95a818ada3e586c9eacc8d0f978af8ebf8381209dcb2e8662dbdb6"
+    "size_bytes": 19191,
+    "sha256": "841a3eb22984ddf5c0ac489aa1de9461b09177ca19377ccbed18fa693438ccf6"
   },
   "Kiem thu mo hinh/paper_detector.py": {
     "size_bytes": 6808,
@@ -46,5 +46,17 @@
   "KNN tư thế/duyen_v1/bieu_do/00_tong_quan.png": {
     "size_bytes": 396200,
     "sha256": "6f7628e5311037b0a9b80f7d1a535e26c6d3805fe667fb4df8fa7aa07ecba2a2"
+  },
+  "Kiem thu mo hinh/report.html": {
+    "size_bytes": 10110,
+    "sha256": "3fa8050040dbc6fa13f62eaad6f12b3ee8ba6557e9b367015060e8b582d09485"
+  },
+  "Kiem thu mo hinh/report_data.json": {
+    "size_bytes": 464,
+    "sha256": "92152a7397524684c473a15d5fbaf260d42212005a0c2c047e3cd2d6aa71cae1"
+  },
+  "README.md": {
+    "size_bytes": 4591,
+    "sha256": "fa07f4064519f08aafa29744830f76de54fa414d028fd294088d22e82eeecda9"
   }
 }

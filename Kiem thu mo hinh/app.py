@@ -40,12 +40,35 @@ def run_model(key, frame, confidence, include_image=True):
         output['image'] = base64.b64encode(encoded).decode()
     return output
 
+def report_data():
+    def read_json(path):
+        try:
+            return json.loads(path.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            return None
+    metrics = read_json(PROJECT/'KNN tư thế/duyen_v1/metrics.json')
+    videos = read_json(PROJECT/'KNN tư thế/duyen_v1/danh_gia_theo_video.json')
+    snapshots = read_json(ROOT/'report_data.json') or {}
+    models = []
+    for key, (name, path) in MODELS.items():
+        dependencies = [path]
+        if key in ('paper', 'duyen'):
+            dependencies.append(ROOT/'models/yolo11n-pose.pt')
+        if key == 'paper':
+            dependencies.append(ROOT/'models/best_model.pkl')
+        models.append({'key': key, 'name': name, 'available': all(p.is_file() for p in dependencies),
+                       'kind': 'YOLO11-Pose + KNN' if key in ('paper', 'duyen') else 'YOLO detection',
+                       'path': str(path.relative_to(PROJECT))})
+    return {'models': models, 'duyen': metrics, 'video_evaluation': videos, 'snapshots': snapshots}
+
 class Handler(BaseHTTPRequestHandler):
     def respond(self, status, body, typ='application/json; charset=utf-8'):
         if isinstance(body, dict): body=json.dumps(body, ensure_ascii=False).encode()
         self.send_response(status); self.send_header('Content-Type',typ); self.send_header('Content-Length',str(len(body))); self.end_headers(); self.wfile.write(body)
     def do_GET(self):
         if urlparse(self.path).path == '/': self.respond(200,(ROOT/'index.html').read_bytes(),'text/html; charset=utf-8')
+        elif urlparse(self.path).path == '/bao-cao': self.respond(200,(ROOT/'report.html').read_bytes(),'text/html; charset=utf-8')
+        elif urlparse(self.path).path == '/api/report': self.respond(200,report_data())
         else: self.respond(404,{'error':'Không tìm thấy'})
     def do_POST(self):
         if self.path != '/analyze': return self.respond(404,{'error':'Không tìm thấy'})

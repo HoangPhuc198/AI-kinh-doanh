@@ -59,3 +59,7 @@ Bộ bàn giao không bao gồm dataset và video gốc. `MANIFEST.json` liệt 
 
 - [Làm việc với GitHub](HUONG_DAN_GITHUB.md): clone, tạo nhánh, commit, push và Pull Request.
 - [Thêm mô hình mới](HUONG_DAN_THEM_MODEL.md): đăng ký YOLO Detect hoặc KNN, hiển thị trên web và kiểm thử.
+
+## Trang báo cáo
+
+Mở ứng dụng và chọn **Báo cáo** trên thanh đầu trang, hoặc truy cập `http://127.0.0.1:8765/bao-cao`. Báo cáo hiển thị số ảnh theo tập, metric đã lưu và các mô hình được cấu hình. Số liệu không tự đồng bộ từ Roboflow; metric Duyên lấy từ các tệp JSON trong `KNN tư thế/duyen_v1`, còn số liệu Graduation và GIan lan là bản chụp trong `Kiem thu mo hinh/report_data.json` và cần cập nhật khi dữ liệu hoặc kết quả huấn luyện thay đổi. Trạng thái đủ tệp không xác nhận mô hình chạy thành công.

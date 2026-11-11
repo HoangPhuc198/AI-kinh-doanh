@@ -1,0 +1,19 @@
+{
+  "graduation": {
+    "name": "Graduation Project v1",
+    "splits": {
+      "train": 4683,
+      "valid": 1338,
+      "test": 669
+    },
+    "source": "KNN tư thế/metrics.json · Roboflow graduation-project-jewvv-ibjm6 phiên bản 1"
+  },
+  "gianlan": {
+    "epoch": 100,
+    "precision": 0.98275,
+    "recall": 0.93164,
+    "map50": 0.96581,
+    "map50_95": 0.87808,
+    "source": "GIan lan/runs/detect/train/results.csv · validation, epoch cuối"
+  }
+}
