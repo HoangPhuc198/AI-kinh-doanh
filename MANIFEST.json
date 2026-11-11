@@ -8,8 +8,8 @@
     "sha256": "c73e39876ba5115475f2e61a3563a06ca3722f5d1acc5358cb0920ceea782a70"
   },
   "app/app.py": {
-    "size_bytes": 6664,
-    "sha256": "3da9f7827019110a8662ad33199e0cb730dd0b326cce3b73c5c4afe7d126c31e"
+    "size_bytes": 6851,
+    "sha256": "463f0d080595baaa71e4600b5736087ebe641413bfe1b7ced9b2e76ba69f090f"
   },
   "app/index.html": {
     "size_bytes": 19409,
@@ -20,8 +20,8 @@
     "sha256": "1ffa2dd9a0e8659470e612928c71a8f27b143218c66199df48931ce03a52d8ba"
   },
   "app/report.html": {
-    "size_bytes": 10709,
-    "sha256": "7eeaba8a0a1b59651e079313bed0c485c7a4fc05526b0fc7f8affbe7805e42ea"
+    "size_bytes": 11198,
+    "sha256": "b33dfa5e6d29ccf7df78f41aaf7fbbe5e1062712ebe98f4aa473d41be0251a8f"
   },
   "docs/HUONG_DAN_GITHUB.md": {
     "size_bytes": 4700,

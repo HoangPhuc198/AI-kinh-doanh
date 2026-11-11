@@ -62,6 +62,8 @@ def report_data():
                        'path': str(path.relative_to(PROJECT))})
     return {'models': models, 'duyen': metrics, 'video_evaluation': videos,
             'yolo_duyen_test': read_json(PROJECT/'reports/yolo11_duyen/test_metrics.json'),
+            'yolo_duyen_run': read_json(PROJECT/'reports/yolo11_duyen/run_config.json'),
+            'yolo_duyen_dataset': read_json(PROJECT/'reports/yolo11_duyen/dataset_summary.json'),
             'snapshots': snapshots}
 
 class Handler(BaseHTTPRequestHandler):
