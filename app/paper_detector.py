@@ -1,15 +1,15 @@
 """Optimized single-camera pose-based frame classification.
 Frame skipping is approximate: see README for recall/accuracy implications.
 """
-from functools import lru_cache
 from pathlib import Path
 import os
 import subprocess
+import threading
 import cv2
 import joblib
 import numpy as np
 import pandas as pd
-from ultralytics import YOLO
+import runtime
 
 BASE = Path(__file__).resolve().parent
 FEATURES = [f'{axis}{i}' for i in range(17) for axis in ('x','y')]
@@ -19,17 +19,23 @@ def env_int(name, default, low, high):
     try: return max(low, min(high, int(os.getenv(name,str(default)))))
     except (ValueError,TypeError): return default
 
-@lru_cache(maxsize=2)
+_classifiers={}
+_classifier_lock=threading.Lock()
+
 def get_models(classifier_path=None):
+    """Trả về (pose, classifier, device); mỗi trọng số/bộ phân loại chỉ nạp một lần."""
     # CUDA requires a CUDA-enabled PyTorch build; pip's CPU wheels cannot use the GPU.
-    import torch
+    torch=runtime.load_torch()
     choice=os.getenv('DEVICE','auto').strip().lower()
     if choice=='auto': device='0' if torch.cuda.is_available() else 'cpu'
     elif choice in ('cpu','mps') or choice.isdigit():device=choice
     else:device='cpu'
-    classifier=joblib.load(classifier_path if classifier_path else BASE.parent/'models'/'paper_knn.pkl')
-    pose=YOLO(str(BASE.parent/'models'/'yolo11n-pose.pt'))
-    print(f'[Proctor-AI] YOLO device: {device}; stride: {env_int("FRAME_STRIDE",1,1,60)}; imgsz: {env_int("YOLO_IMGSZ",416,256,1280)}',flush=True)
+    path=str(classifier_path if classifier_path else BASE.parent/'models'/'paper_knn.pkl')
+    with _classifier_lock:
+        classifier=_classifiers.get(path)
+        if classifier is None:
+            classifier=_classifiers[path]=joblib.load(path)
+    pose=runtime.get_yolo(BASE.parent/'models'/'yolo11n-pose.pt')
     return pose, classifier, device
 
 def infer(frame, threshold=0.55, classifier_path=None):

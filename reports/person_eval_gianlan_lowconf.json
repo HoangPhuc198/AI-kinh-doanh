@@ -1,0 +1,40 @@
+{
+ "dataset": "datasets/coco128",
+ "images": 128,
+ "results": [
+  {
+   "model": "gian_lan",
+   "imgsz": 640,
+   "conf": 0.01,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "precision": null,
+     "pred_total": 0,
+     "false_positives": 0,
+     "recall_large": 0.0,
+     "gt_large": 85,
+     "recall_medium": 0.0,
+     "gt_medium": 82,
+     "recall_small": 0.0,
+     "gt_small": 87,
+     "recall_all": 0.0
+    },
+    "phone": {
+     "precision": null,
+     "pred_total": 0,
+     "false_positives": 0,
+     "recall_small": 0.0,
+     "gt_small": 6,
+     "recall_large": 0.0,
+     "gt_large": 1,
+     "recall_medium": 0.0,
+     "gt_medium": 1,
+     "recall_all": 0.0
+    }
+   },
+   "latency_ms_mean": 126,
+   "latency_ms_p95": 173
+  }
+ ]
+}

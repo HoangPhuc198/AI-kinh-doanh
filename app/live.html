@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ExamVision — Giám sát webcam</title>
+    <style>
+      [hidden] {
+        display: none !important;
+      }
+      :root {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        color: #162b31;
+        background: #f3f6f4;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      header {
+        background: #102e30;
+        color: white;
+        padding: 22px max(5vw, 24px);
+      }
+      header .inner {
+        max-width: 1400px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        font-size: 21px;
+        font-weight: 800;
+      }
+      .brand span {
+        color: #8ce0bc;
+      }
+      header a {
+        color: #d5f4e5;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        border: 1px solid #52746b;
+        border-radius: 8px;
+        padding: 9px 14px;
+        margin-left: 8px;
+      }
+      main {
+        max-width: 1400px;
+        margin: auto;
+        padding: 36px 28px;
+      }
+      h1 {
+        font-size: clamp(26px, 3vw, 40px);
+        letter-spacing: -1.5px;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 17px;
+        margin: 0 0 10px;
+      }
+      p {
+        color: #63777a;
+        line-height: 1.55;
+        margin: 0;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+        gap: 24px;
+        margin-top: 24px;
+        align-items: start;
+      }
+      .card {
+        background: white;
+        border: 1px solid #e0e9e5;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 24px #173b2e08;
+      }
+      .stage {
+        position: relative;
+        line-height: 0;
+        background: #122623;
+        border-radius: 10px;
+        overflow: hidden;
+        aspect-ratio: 4/3;
+      }
+      video,
+      canvas#overlay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      canvas#overlay {
+        pointer-events: none;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 16px 0;
+      }
+      button {
+        border: 1px solid #cfded5;
+        background: white;
+        color: #285446;
+        padding: 10px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 650;
+      }
+      button.primary {
+        background: #117453;
+        color: white;
+        border-color: #117453;
+      }
+      button.danger {
+        background: #b04b3f;
+        color: white;
+        border-color: #b04b3f;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .opts {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+        font-size: 13px;
+        color: #536d69;
+        margin-top: 12px;
+      }
+      select,
+      input[type="range"] {
+        accent-color: #13805d;
+      }
+      select {
+        padding: 8px;
+        border: 1px solid #d7e3dd;
+        border-radius: 8px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .stat {
+        background: #f3f8f5;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 12px;
+        color: #5b756e;
+      }
+      .stat b {
+        display: block;
+        font-size: 15px;
+        color: #162b31;
+        margin-top: 3px;
+      }
+      .alerts {
+        max-height: 520px;
+        overflow: auto;
+        display: grid;
+        gap: 10px;
+      }
+      .alert {
+        border: 1px solid #e0e9e5;
+        border-left: 5px solid #d9a441;
+        border-radius: 10px;
+        padding: 11px 13px;
+        font-size: 13px;
+      }
+      .alert.high {
+        border-left-color: #c8483b;
+      }
+      .alert.low {
+        border-left-color: #7aa6c2;
+      }
+      .alert small {
+        color: #78908a;
+        display: block;
+        margin-top: 4px;
+      }
+      .alert select {
+        margin-top: 8px;
+        font-size: 12px;
+        padding: 5px;
+      }
+      .alert.dismissed {
+        opacity: 0.5;
+      }
+      .notice {
+        background: #fff7e0;
+        border: 1px solid #efd88a;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 12.5px;
+        color: #6a5416;
+        margin-top: 16px;
+        line-height: 1.55;
+      }
+      .msg {
+        font-size: 13px;
+        margin: 10px 0;
+        color: #3b7560;
+      }
+      .msg.err {
+        color: #b04b3f;
+      }
+      .flash {
+        background: #fdeceb;
+        border: 1px solid #f0b5ae;
+        color: #8f2f25;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="inner">
+        <div class="brand">◉ &nbsp;Exam<span>Vision</span></div>
+        <nav><a href="/">Kiểm thử mô hình</a><a href="/bao-cao">Báo cáo ↗</a></nav>
+      </div>
+    </header>
+    <main>
+      <h1>Giám sát webcam trực tiếp</h1>
+      <p>Webcam chỉ được bật khi bạn bấm <b>Bật webcam</b>. Hình ảnh được xử lý trên máy này, không ghi hình và không lưu ảnh.</p>
+      <div class="layout">
+        <section class="card">
+          <div class="stage"><video id="cam" autoplay muted playsinline></video><canvas id="overlay" aria-hidden="true"></canvas></div>
+          <div class="controls"><button id="btnCam" class="primary">Bật webcam</button><button id="btnStart" disabled>Bắt đầu giám sát</button><button id="btnPause" disabled>Tạm dừng</button><button id="btnResume" disabled>Tiếp tục</button><button id="btnStop" class="danger" disabled>Dừng giám sát</button></div>
+          <div class="opts">
+            <label
+              >Mô hình
+              <select id="model"></select></label
+            ><label>Ngưỡng <b id="confv">0.50</b> <input id="conf" type="range" min="0.2" max="0.9" step="0.05" value="0.5" /></label
+            ><label
+              >FPS tối đa
+              <select id="fpsCap">
+                <option>2</option>
+                <option selected>5</option>
+                <option>10</option>
+              </select></label
+            ><label
+              >Chế độ
+              <select id="mode">
+                <option value="single" selected>Webcam một thí sinh</option>
+                <option value="room">Camera toàn phòng (nhiều người là bình thường)</option>
+              </select></label
+            ><label
+              >Độ phân giải gửi AI
+              <select id="sendW">
+                <option value="640">640 px (nhanh)</option>
+                <option value="960" selected>960 px</option>
+                <option value="1280">1280 px (người ở xa, chậm hơn)</option>
+              </select></label
+            ><label
+              >imgsz mô hình
+              <select id="imgsz">
+                <option value="">Mặc định của mô hình</option>
+                <option value="640">640</option>
+                <option value="960">960</option>
+                <option value="1280">1280</option>
+              </select></label
+            >
+          </div>
+          <div id="msg" class="msg" role="status">Chưa bật webcam.</div>
+          <div class="notice">Cảnh báo chỉ là <b>tín hiệu nghi vấn cần giám thị xem xét</b>, không phải kết luận gian lận và không dùng để xử phạt. Hệ thống không nhận diện danh tính, không thu âm. Chưa hỗ trợ phát hiện hướng đầu/ánh nhìn vì chưa có mô hình được kiểm chứng.</div>
+        </section>
+        <aside class="card">
+          <h2>Trạng thái</h2>
+          <div class="stats">
+            <div class="stat">Camera<b id="stCam">Tắt</b></div>
+            <div class="stat">Mô hình AI<b id="stAI">Chưa tải</b></div>
+            <div class="stat">FPS xử lý<b id="stFps">—</b></div>
+            <div class="stat">Độ trễ suy luận<b id="stMs">—</b></div>
+            <div class="stat">Phiên<b id="stSess">Chưa bắt đầu</b></div>
+            <div class="stat">Khung đã xử lý<b id="stFrames">0</b></div>
+          </div>
+          <div id="flash" class="flash" hidden></div>
+          <h2>Lịch sử cảnh báo trong phiên (<span id="alertCount">0</span>)</h2>
+          <div id="alerts" class="alerts"><p>Chưa có cảnh báo.</p></div>
+        </aside>
+      </div>
+    </main>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const TYPES = { no_person: "Không thấy người", multiple_people: "Nhiều người", phone: "Điện thoại", suspicious_label: "Nhãn hành vi nghi vấn" };
+      const SEV = { low: "Thấp", medium: "Trung bình", high: "Cao" };
+      const STATUS = { needs_review: "Cần xem xét", reviewed: "Đã xem xét", dismissed: "Bỏ qua (cảnh báo sai)" };
+      let stream = null,
+        session = null,
+        running = false,
+        paused = false,
+        heartbeat = null,
+        fpsEma = 0,
+        alerts = [],
+        lastDetails = [],
+        gen = 0;
+      const cap = document.createElement("canvas"),
+        cctx = cap.getContext("2d", { alpha: false });
+      function msg(t, err) {
+        $("msg").textContent = t;
+        $("msg").className = "msg" + (err ? " err" : "");
+      }
+      function ui() {
+        const cam = !!stream,
+          act = !!session;
+        $("btnCam").disabled = cam;
+        $("btnStart").disabled = !cam || act;
+        $("btnPause").disabled = !(act && running && !paused);
+        $("btnResume").disabled = !(act && paused);
+        $("btnStop").disabled = !act;
+        $("model").disabled = act;
+        $("conf").disabled = act;
+        $("mode").disabled = act;
+        $("imgsz").disabled = act;
+        $("stCam").textContent = cam ? "Đang bật" : "Tắt";
+        $("stSess").textContent = !act ? "Chưa bắt đầu" : paused ? "Tạm dừng" : "Đang giám sát";
+      }
+      async function api(path, body) {
+        const r = await fetch(path, { method: body ? "POST" : "GET", headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+        let j = {};
+        try {
+          j = await r.json();
+        } catch (e) {}
+        return { ok: r.ok, status: r.status, json: j };
+      }
+      fetch("/api/live/status")
+        .then((r) => r.json())
+        .then((s) => {
+          $("model").innerHTML = Object.entries(s.models)
+            .map(([k, n]) => `<option value="${k}">${esc(n)}</option>`)
+            .join("");
+          if (!s.torch.ready) $("stAI").textContent = "Sẽ tải khi bắt đầu";
+        })
+        .catch(() => msg("Không kết nối được máy chủ.", true));
+      $("conf").oninput = (e) => ($("confv").textContent = Number(e.target.value).toFixed(2));
+      $("btnCam").onclick = async () => {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          msg("Trình duyệt không hỗ trợ webcam hoặc trang không chạy ở localhost/HTTPS.", true);
+          return;
+        }
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        } catch (e) {
+          stream = null;
+          msg(e.name === "NotAllowedError" ? "Bạn đã từ chối quyền camera. Hãy cho phép camera trong cài đặt trình duyệt rồi thử lại." : e.name === "NotFoundError" ? "Không tìm thấy webcam." : e.name === "NotReadableError" ? "Webcam đang được ứng dụng/tab khác sử dụng." : "Không bật được webcam: " + e.message, true);
+          ui();
+          return;
+        }
+        stream.getVideoTracks()[0].addEventListener("ended", () => onCameraLost());
+        $("cam").srcObject = stream;
+        msg('Webcam đang bật (chưa giám sát). Bấm "Bắt đầu giám sát" để chạy AI.');
+        ui();
+      };
+      function releaseCamera() {
+        if (stream) {
+          stream.getTracks().forEach((t) => t.stop());
+          stream = null;
+        }
+        $("cam").srcObject = null;
+        clearOverlay();
+      }
+      function onCameraLost() {
+        if (!stream) return;
+        msg("Webcam bị ngắt kết nối. Phiên giám sát đã dừng.", true);
+        endSession(true);
+      }
+      function clearOverlay() {
+        const o = $("overlay"),
+          g = o.getContext("2d");
+        g.clearRect(0, 0, o.width, o.height);
+      }
+      $("btnStart").onclick = async () => {
+        $("btnStart").disabled = true;
+        $("stAI").textContent = "Đang tải…";
+        msg("Đang tải mô hình AI (lần đầu có thể mất vài chục giây)…");
+        const r = await api("/api/live/start", { model: $("model").value, confidence: $("conf").value, mode: $("mode").value, imgsz: $("imgsz").value ? Number($("imgsz").value) : null });
+        if (!r.ok) {
+          $("stAI").textContent = "Lỗi";
+          msg(r.json.error || "Không bắt đầu được phiên.", true);
+          ui();
+          return;
+        }
+        session = r.json.session;
+        alerts = [];
+        renderAlerts();
+        running = true;
+        paused = false;
+        fpsEma = 0;
+        $("stAI").textContent = "Sẵn sàng · " + r.json.model;
+        msg("Đang giám sát.");
+        ui();
+        heartbeat = setInterval(
+          () =>
+            api("/api/live/control", { session, action: "ping" }).then((x) => {
+              if (x.status === 404) sessionLost();
+            }),
+          5000,
+        );
+        loop(++gen);
+      };
+      async function loop(my) {
+        while (running && !paused && session && my === gen) {
+          const t0 = performance.now();
+          const v = $("cam");
+          if (v.readyState >= 2 && v.videoWidth) {
+            const w = Math.min(v.videoWidth, Number($("sendW").value)),
+              h = Math.round((v.videoHeight * w) / v.videoWidth);
+            cap.width = w;
+            cap.height = h;
+            cctx.drawImage(v, 0, 0, w, h);
+            const data = cap.toDataURL("image/jpeg", 0.7).split(",")[1];
+            let r;
+            try {
+              r = await api("/api/live/frame", { session, data });
+            } catch (e) {
+              if (my === gen) msg("Mất kết nối tới máy chủ.", true);
+              break;
+            }
+            if (my !== gen) return;
+            if (r.status === 404) {
+              sessionLost();
+              return;
+            }
+            if (r.status === 409 && running && !paused) {
+              msg(r.json.error, true);
+              break;
+            }
+            if (!r.ok) {
+              msg(r.json.error || "Lỗi suy luận.", true);
+              await sleep(1000);
+              continue;
+            }
+            const j = r.json;
+            lastDetails = j.details;
+            draw();
+            $("stMs").textContent = j.ms + " ms";
+            $("stFrames").textContent = j.frames;
+            const dt = (performance.now() - t0) / 1000;
+            fpsEma = fpsEma ? fpsEma * 0.8 + 0.2 / dt : 1 / dt;
+            $("stFps").textContent = fpsEma.toFixed(1);
+            if (j.new_alerts.length) {
+              alerts.push(...j.new_alerts);
+              renderAlerts(j.new_alerts);
+            }
+          }
+          const wait = 1000 / Number($("fpsCap").value) - (performance.now() - t0);
+          if (wait > 0) await sleep(wait);
+        }
+      }
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      function draw() {
+        const v = $("cam"),
+          o = $("overlay"),
+          r = v.getBoundingClientRect();
+        if (!r.width || !v.videoWidth) return;
+        const k = devicePixelRatio || 1;
+        o.width = Math.round(r.width * k);
+        o.height = Math.round(r.height * k);
+        const g = o.getContext("2d");
+        g.setTransform(k, 0, 0, k, 0, 0);
+        const s = Math.min(r.width / v.videoWidth, r.height / v.videoHeight),
+          vw = v.videoWidth * s,
+          vh = v.videoHeight * s,
+          ox = (r.width - vw) / 2,
+          oy = (r.height - vh) / 2;
+        for (const d of lastDetails) {
+          if (!d.box) continue;
+          const [a, b, c, e] = d.box,
+            bad = /cheat|suspicious/i.test(d.label),
+            col = bad ? "#ff4b48" : "#21ec9e";
+          g.strokeStyle = col;
+          g.lineWidth = 3;
+          g.strokeRect(ox + a * vw, oy + b * vh, (c - a) * vw, (e - b) * vh);
+          const t = d.label + (d.confidence == null ? "" : " " + Math.round(d.confidence * 100) + "%");
+          g.font = "bold 13px sans-serif";
+          const tw = g.measureText(t).width + 10;
+          const ty = Math.max(oy, oy + b * vh - 20);
+          g.fillStyle = col;
+          g.fillRect(ox + a * vw, ty, tw, 20);
+          g.fillStyle = "#102a24";
+          g.fillText(t, ox + a * vw + 5, ty + 14);
+        }
+      }
+      function renderAlerts(fresh) {
+        $("alertCount").textContent = alerts.length;
+        $("alerts").innerHTML = alerts.length
+          ? [...alerts]
+              .reverse()
+              .map(
+                (a) =>
+                  `<div class="alert ${esc(a.severity)} ${a.status === "dismissed" ? "dismissed" : ""}"><b>${esc(TYPES[a.type] || a.type)}</b> · mức ${esc(SEV[a.severity] || a.severity)}<br>${esc(a.description)}<small>${esc(a.time)} · kéo dài ~${a.duration_s}s · ${a.frames || "?"} khung · độ tin cậy ${a.confidence == null ? "n/a" : Math.round(a.confidence * 100) + "%"} · ${esc(a.model)} · ${a.mode === "room" ? "toàn phòng" : "một thí sinh"}</small><select data-id="${a.id}">${Object.entries(STATUS)
+                    .map(([k, n]) => `<option value="${k}" ${a.status === k ? "selected" : ""}>${n}</option>`)
+                    .join("")}</select></div>`,
+              )
+              .join("")
+          : "<p>Chưa có cảnh báo.</p>";
+        $("alerts")
+          .querySelectorAll("select")
+          .forEach(
+            (s) =>
+              (s.onchange = async () => {
+                const r = await api("/api/live/review", { session, alert: Number(s.dataset.id), status: s.value });
+                if (r.ok) {
+                  alerts.find((a) => a.id === Number(s.dataset.id)).status = s.value;
+                  renderAlerts();
+                } else msg(r.json.error || "Không cập nhật được trạng thái.", true);
+              }),
+          );
+        if (fresh && fresh.length) {
+          const f = $("flash");
+          f.hidden = false;
+          f.textContent = "Tín hiệu cần xem xét: " + fresh.map((a) => TYPES[a.type] || a.type).join(", ") + " (không phải kết luận gian lận)";
+          clearTimeout(f._t);
+          f._t = setTimeout(() => (f.hidden = true), 6000);
+        }
+      }
+      $("btnPause").onclick = async () => {
+        paused = true;
+        gen++;
+        await api("/api/live/control", { session, action: "pause" });
+        msg("Đã tạm dừng (webcam vẫn hiển thị, AI không xử lý).");
+        ui();
+      };
+      $("btnResume").onclick = async () => {
+        const r = await api("/api/live/control", { session, action: "resume" });
+        if (!r.ok) {
+          sessionLost();
+          return;
+        }
+        paused = false;
+        msg("Đang giám sát.");
+        ui();
+        loop(++gen);
+      };
+      async function endSession(releaseCam) {
+        gen++;
+        running = false;
+        paused = false;
+        clearInterval(heartbeat);
+        const s = session;
+        session = null;
+        if (s)
+          try {
+            await api("/api/live/control", { session: s, action: "stop" });
+          } catch (e) {}
+        if (releaseCam) releaseCamera();
+        lastDetails = [];
+        clearOverlay();
+        $("stFps").textContent = "—";
+        $("stMs").textContent = "—";
+        ui();
+      }
+      function sessionLost() {
+        msg("Phiên giám sát đã hết hạn hoặc bị dừng.", true);
+        endSession(true);
+      }
+      $("btnStop").onclick = async () => {
+        await endSession(true);
+        msg("Đã dừng giám sát và tắt webcam. Lịch sử cảnh báo giữ lại trên trang cho tới khi tải lại.");
+      };
+      addEventListener("pagehide", () => {
+        if (session) navigator.sendBeacon("/api/live/control", new Blob([JSON.stringify({ session, action: "stop" })], { type: "application/json" }));
+        releaseCamera();
+      });
+      ui();
+    </script>
+  </body>
+</html>
