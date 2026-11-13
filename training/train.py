@@ -38,6 +38,9 @@ def main():
     ap.add_argument('--patience', type=int, default=15); ap.add_argument('--seed', type=int, default=42)
     ap.add_argument('--fraction', type=float, default=1.0); ap.add_argument('--device', default=None)
     ap.add_argument('--resume', default=None, help='đường dẫn last.pt để tiếp tục')
+    ap.add_argument('--freeze', type=int, default=None, help='đóng băng N lớp đầu (backbone) khi dữ liệu nhỏ')
+    ap.add_argument('--lr0', type=float, default=None); ap.add_argument('--optimizer', default='auto')
+    ap.add_argument('--weight-decay', type=float, default=0.0005)
     a = ap.parse_args()
     torch = runtime.load_torch()
     from ultralytics import YOLO, __version__ as uv
@@ -56,6 +59,11 @@ def main():
                project=str(ROOT / a.project), name=a.name, exist_ok=False, device=device, fraction=a.fraction, save_period=-1, plots=False,
                # augmentation có kiểm soát: ánh sáng, scale (người nhỏ/xa), che khuất; không lật dọc/xoay để giữ ngữ cảnh phòng thi
                hsv_h=0.015, hsv_s=0.5, hsv_v=0.4, scale=0.6, translate=0.1, degrees=0.0, fliplr=0.5, flipud=0.0, mosaic=1.0, erasing=0.3, close_mosaic=5)
+    cfg.update(optimizer=a.optimizer, weight_decay=a.weight_decay)
+    if a.freeze:
+        cfg['freeze'] = a.freeze
+    if a.lr0:
+        cfg['lr0'] = a.lr0
     model.train(**cfg)
     best = Path(model.trainer.best)
     final = YOLO(str(best))

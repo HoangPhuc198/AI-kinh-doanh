@@ -99,3 +99,35 @@ class AlertTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class CalibratedTests(unittest.TestCase):
+    def d(self, *items):
+        return [{'label': l, 'confidence': c} for l, c in items]
+
+    def test_low_conf_person_counts_as_present_but_not_as_second_person(self):
+        s = extract_signals('person_coco', self.d(('person', 0.9), ('person', 0.3)))
+        self.assertEqual((s['has_person'], s['person_count']), (True, 1))  # 0.3 < 0.5: không tính "nhiều người"
+
+    def test_weak_person_only_still_prevents_no_person_alert(self):
+        s = extract_signals('person_coco', self.d(('person', 0.27)))
+        self.assertEqual((s['has_person'], s['person_count']), (True, 0))
+
+    def test_phone_needs_calibrated_threshold(self):
+        self.assertFalse(extract_signals('person_coco', self.d(('cell phone', 0.30)))['phone'])
+        s = extract_signals('person_coco', self.d(('cell phone', 0.60)))
+        self.assertEqual((s['phone'], s['conf']['phone']), (True, 0.6))
+
+    def test_display_filter(self):
+        from live.alerts import display_filter
+        out = display_filter('person_coco', self.d(('person', 0.3), ('person', 0.4), ('cell phone', 0.3), ('cell phone', 0.5)))
+        self.assertEqual([(d['label'], d['confidence']) for d in out], [('person', 0.4), ('cell phone', 0.5)])
+        raw = self.d(('person', 0.1))
+        self.assertIs(display_filter('gianlan', raw), raw)
+
+
+class DisplayOnlyRelevantClasses(unittest.TestCase):
+    def test_other_coco_classes_hidden(self):
+        from live.alerts import display_filter
+        out = display_filter('person_coco', [{'label': 'bowl', 'confidence': 0.9}, {'label': 'person', 'confidence': 0.9}])
+        self.assertEqual([d['label'] for d in out], ['person'])

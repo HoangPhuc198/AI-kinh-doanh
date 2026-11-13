@@ -20,3 +20,10 @@ python training/train.py --resume runs/train/person_phone_v1/weights/last.pt
 Colab: chọn runtime GPU, `git clone` dự án, chạy các lệnh trên, tải `runs/train/<name>/weights/best.pt` về `models/` rồi đánh giá bằng `training/eval_person.py` (thêm mô hình vào `MODELS`) **trên tập test riêng ảnh webcam/phòng thi**. Chỉ thay model khi cải thiện được chứng minh trên cùng tập test và không giảm recall người gần.
 
 Dùng GPU cục bộ: cài PyTorch bản CUDA vào `.venv` (khoảng vài GB, nên kiểm tra dung lượng; ổ C: chỉ còn 3,6 GB, `.venv` ở ổ E:). Chưa thực hiện.
+
+## Lần train thực tế #1: `person_phone_v1` (2026-11-13)
+- **Dataset:** `datasets/coco_person_phone` — COCO val2017 lọc 2 lớp (person, cell phone), **1.014 ảnh** chia 708/153/153 (train/val/test), 6.000 hộp người, 261 hộp điện thoại (test chỉ có 31 điện thoại). Tạo bằng `training/coco_to_yolo.py` + `training/prepare_dataset.py`.
+- **Cấu hình:** khởi tạo từ `models/yolo11n_coco.pt`, 640 px, batch 8, CPU, seed 42, tối đa 12 epoch, `patience=5`.
+- **Kết quả:** **dừng sớm sau 6 epoch (1,03 giờ)**; `best.pt` là epoch 1. mAP50 val dao động 0,22–0,25, không cải thiện qua các epoch. Đã lưu `models/yolo11_person_phone.pt` (khóa `person_phone`). Nhật ký: `runs/train/person_phone_v1/` (gitignore).
+- **Đánh giá test (ngưỡng 0,25):** recall người 0,04 (640) / 0,02 (960), recall điện thoại 0, đều thấp hơn `yolo11n_coco` gốc (0,55 / 0,67; điện thoại 0,36 / 0,45). Chi tiết: [MODEL_EVALUATION.md](MODEL_EVALUATION.md). **Model này KHÔNG được khuyến nghị dùng.**
+- **Nguyên nhân (giả thuyết, chưa kiểm chứng):** đổi từ 80 lớp xuống 2 lớp làm khởi tạo lại đầu phát hiện, trong khi dữ liệu nhỏ, chạy CPU, chỉ vài epoch nên đầu mới chưa học xong; `patience=5` dừng khi chỉ số val dao động. Hướng thử tiếp: giữ đầu 80 lớp của COCO (gán nhãn person=0, cell phone=67) để fine-tune nhẹ, hoặc đóng băng backbone, learning rate thấp hơn, chạy trên GPU/Colab nhiều epoch hơn.

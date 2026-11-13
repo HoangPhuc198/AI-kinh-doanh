@@ -21,3 +21,6 @@ Không gán nhãn "gian lận" từ sự hiện diện điện thoại/nhiều n
 
 ## Công cụ
 [training/prepare_dataset.py](training/prepare_dataset.py): kiểm nhãn (lớp ngoài phạm vi, tọa độ ngoài [0,1]), loại trùng md5, gộp ảnh gần giống (dHash), chia theo nhóm (không rò rỉ khung gần giống giữa train/val/test), sinh `data.yaml` và `prepare_report.json`. Đã chạy trên coco128. Chưa thử trên chuỗi khung video thật.
+
+## Dataset mới đã dùng: `coco_person_phone`
+Nguồn: COCO 2017 **val2017** (cocodataset.org; nhãn CC BY 4.0, ảnh Flickr giấy phép từng ảnh khác nhau, chưa kiểm tra từng ảnh) — tải về `datasets/raw/coco_val/` (đã kiểm tra toàn vẹn zip). Lọc bằng `training/coco_to_yolo.py`: toàn bộ 214 ảnh có điện thoại + ~800 ảnh người (nửa đầu ưu tiên ảnh có nhiều người nhỏ) = **1.014 ảnh**, 6.000 hộp người (bỏ `iscrowd`), 261 hộp điện thoại. Chia (seed 42) train 708 / val 153 / test 153; 0 nhãn lỗi, 0 ảnh trùng (mỗi ảnh là một nhóm vì COCO không có chuỗi khung). Mẫu thiên về người nhỏ nên tập test nặng người nhỏ hơn thực tế; không phải ảnh webcam/phòng thi.

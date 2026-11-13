@@ -17,6 +17,8 @@ MODELS = {
     'duyen': ('KNN dataset Duyên', PROJECT/'models/duyen_knn.joblib'),
     # Bộ phát hiện đối tượng tổng quát (COCO) có lớp person + cell phone; dùng cho đếm người/điện thoại.
     'person_coco': ('YOLO11n COCO (người + điện thoại)', PROJECT/'models/yolo11n_coco.pt'),
+    # Fine-tune từ person_coco trên dataset MỚI coco_person_phone (COCO val2017 lọc, 1014 ảnh); xem TRAINING_REPORT.md.
+    'person_phone': ('YOLO11n Người+ĐT v1 (dataset mới, thử nghiệm - KÉM)', PROJECT/'models/yolo11_person_phone.pt'),
 }
 POSE_KEYS = ('paper', 'duyen')
 # imgsz mặc định theo mô hình (None = mặc định Ultralytics 640). Giá trị 960 dựa trên

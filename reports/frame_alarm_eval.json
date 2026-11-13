@@ -1,0 +1,30 @@
+{
+ "images": 153,
+ "frames_single_person": 41,
+ "frames_with_person": 149,
+ "frames_with_phone": 29,
+ "frames_without_phone": 124,
+ "false_multiple_people_rate": {
+  "count>=0.25": 0.146,
+  "count>=0.35": 0.073,
+  "count>=0.5": 0.073,
+  "count>=0.6": 0.073
+ },
+ "false_no_person_rate": {
+  "present>=0.25": 0.054,
+  "present>=0.35": 0.067,
+  "present>=0.5": 0.114
+ },
+ "phone_false_alarm_rate": {
+  "phone>=0.25": 0.0,
+  "phone>=0.35": 0.0,
+  "phone>=0.45": 0.0,
+  "phone>=0.6": 0.0
+ },
+ "phone_hit_rate": {
+  "phone>=0.25": 0.483,
+  "phone>=0.35": 0.448,
+  "phone>=0.45": 0.379,
+  "phone>=0.6": 0.379
+ }
+}

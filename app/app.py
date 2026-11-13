@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import runtime
 from inference import ALLOWED_IMGSZ, MODELS, PROJECT, run_model, warm_model
-from live.alerts import extract_signals
+from live.alerts import CALIBRATION, display_filter, extract_signals
 from live.session import SessionManager, SessionBusy, SessionNotFound
 
 ROOT = Path(__file__).resolve().parent
@@ -38,18 +38,18 @@ def report_data():
             'yolo_duyen_dataset': read_json(PROJECT/'reports/yolo11_duyen/dataset_summary.json'),
             'snapshots': snapshots}
 
-LIVE_MODELS = ('person_coco', 'yolo_duyen', 'training', 'gianlan', 'paper', 'duyen')
+LIVE_MODELS = ('person_phone', 'person_coco', 'yolo_duyen', 'training', 'gianlan', 'paper', 'duyen')
 
 def live_status():
     return {'torch': runtime.torch_status(), 'loaded_models': runtime.loaded_models(),
-            'models': {k: MODELS[k][0] for k in LIVE_MODELS}, 'session': sessions.active()}
+            'models': {k: MODELS[k][0] for k in LIVE_MODELS}, 'calibrated': sorted(CALIBRATION), 'session': sessions.active()}
 
 def live_start(req):
     key = req.get('model')
     if key not in LIVE_MODELS: raise ValueError('Mô hình không hợp lệ.')
     if not all(p.is_file() for p in [MODELS[key][1]] + ([MODELS['duyen'][1].parent/'yolo11n-pose.pt'] if key in ('paper','duyen') else [])):
         raise FileNotFoundError('Thiếu tệp trọng số của mô hình này.')
-    confidence = max(0.05, min(0.95, float(req.get('confidence', .5))))
+    confidence = max(0.01, min(1.0, float(req.get("confidence", .5))))
     mode = req.get('mode', 'single')
     if mode not in ('single', 'room'): raise ValueError('Chế độ không hợp lệ.')
     imgsz = int(req['imgsz']) if req.get('imgsz') else None
@@ -59,7 +59,7 @@ def live_start(req):
         warm_model(key)
     except BaseException:
         sessions.stop(session.id); raise
-    return 200, {'session': session.id, 'model': MODELS[key][0], 'supports_phone': extract_signals(key, [])['supports_phone'], 'mode': mode}
+    return 200, {'session': session.id, 'model': MODELS[key][0], 'supports_phone': extract_signals(key, [])['supports_phone'], 'mode': mode, 'calibrated': key in CALIBRATION}
 
 def live_frame(req):
     session = sessions.get(req.get('session'))
@@ -68,12 +68,16 @@ def live_frame(req):
     if len(raw) > MAX_LIVE_FRAME: raise ValueError('Khung hình quá lớn.')
     frame = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
     if frame is None: raise ValueError('Không giải mã được khung hình.')
-    result = run_model(session.model_key, frame, session.confidence, include_image=False, imgsz=session.imgsz)
+    cal = CALIBRATION.get(session.model_key)
+    result = run_model(session.model_key, frame, cal['infer_conf'] if cal else session.confidence, include_image=False, imgsz=session.imgsz)
     with session.lock:
         new = session.engine.update(extract_signals(session.model_key, result['details']), session.model_name)
         session.record(new)
         total = len(session.alerts)
-    return 200, {'details': result['details'], 'counts': result['counts'], 'ms': result['ms'],
+    shown = display_filter(session.model_key, result['details'])
+    shown_counts = {}
+    for d in shown: shown_counts[d['label']] = shown_counts.get(d['label'], 0) + 1
+    return 200, {'details': shown, 'counts': shown_counts, 'ms': result['ms'],
                  'new_alerts': new, 'alert_total': total, 'frames': session.frames}
 
 def live_control(req):
@@ -131,7 +135,7 @@ class Handler(BaseHTTPRequestHandler):
             req=json.loads(self.rfile.read(length)); raw=base64.b64decode(req['data'],validate=True)
             keys=[k for k in req['models'] if k in MODELS]
             if not keys: raise ValueError('Chọn ít nhất một mô hình.')
-            threshold=max(0.05,min(0.95,float(req.get('confidence',.25))))
+            threshold=max(0.01,min(1.0,float(req.get("confidence",.25))))
             frames=[]
             if req.get('video'):
                 with tempfile.NamedTemporaryFile(suffix='.mp4') as f:

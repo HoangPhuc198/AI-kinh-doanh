@@ -1,0 +1,124 @@
+{
+ "dataset": "datasets/coco_person_phone",
+ "images": 153,
+ "results": [
+  {
+   "model": "yolo11n_coco",
+   "imgsz": 640,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.905,
+     "gt_large": 179,
+     "recall_small": 0.293,
+     "gt_small": 416,
+     "precision": 0.791,
+     "pred_total": 623,
+     "false_positives": 130,
+     "recall_medium": 0.706,
+     "gt_medium": 296,
+     "recall_all": 0.553,
+     "f1": 0.651
+    },
+    "phone": {
+     "precision": 0.611,
+     "pred_total": 18,
+     "false_positives": 7,
+     "recall_small": 0.0,
+     "gt_small": 14,
+     "recall_medium": 0.667,
+     "gt_medium": 12,
+     "recall_large": 0.6,
+     "gt_large": 5,
+     "recall_all": 0.355,
+     "f1": 0.449
+    }
+   },
+   "latency_ms_mean": 120,
+   "latency_ms_p95": 227
+  },
+  {
+   "model": "yolo11n_coco",
+   "imgsz": 960,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.894,
+     "gt_large": 179,
+     "recall_small": 0.476,
+     "gt_small": 416,
+     "precision": 0.729,
+     "pred_total": 816,
+     "false_positives": 221,
+     "recall_medium": 0.801,
+     "gt_medium": 296,
+     "recall_all": 0.668,
+     "f1": 0.697
+    },
+    "phone": {
+     "precision": 0.737,
+     "pred_total": 19,
+     "false_positives": 5,
+     "recall_small": 0.071,
+     "gt_small": 14,
+     "recall_medium": 0.75,
+     "gt_medium": 12,
+     "recall_large": 0.8,
+     "gt_large": 5,
+     "recall_all": 0.452,
+     "f1": 0.56
+    }
+   },
+   "latency_ms_mean": 205,
+   "latency_ms_p95": 331
+  },
+  {
+   "model": "yolo11n_pose",
+   "imgsz": 640,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.922,
+     "gt_large": 179,
+     "recall_small": 0.0,
+     "gt_small": 416,
+     "precision": 0.9,
+     "pred_total": 341,
+     "false_positives": 34,
+     "recall_medium": 0.48,
+     "gt_medium": 296,
+     "recall_all": 0.345,
+     "f1": 0.499
+    }
+   },
+   "latency_ms_mean": 97,
+   "latency_ms_p95": 253
+  },
+  {
+   "model": "yolo11n_pose",
+   "imgsz": 960,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.916,
+     "gt_large": 179,
+     "recall_small": 0.017,
+     "gt_small": 416,
+     "precision": 0.798,
+     "pred_total": 455,
+     "false_positives": 92,
+     "recall_medium": 0.649,
+     "gt_medium": 296,
+     "recall_all": 0.407,
+     "f1": 0.539
+    }
+   },
+   "latency_ms_mean": 236,
+   "latency_ms_p95": 375
+  }
+ ]
+}

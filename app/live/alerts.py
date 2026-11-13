@@ -30,9 +30,38 @@ SIGNAL_LABELS = {
     # gian_lan có cả lớp 'person' lẫn nhãn hành vi chồng lên cùng một người nên chỉ đếm 'person'
     # cho số người; 'invigilator' (giám thị) không tính là thí sinh.
     'person_coco': {'person': {'person'}, 'phone': {'cell phone'}},
+    'person_phone': {'person': {'person'}, 'phone': {'cell phone'}},
     'gianlan': {'person': {'person', 'normal', 'cheating', 'cheating-behaviour', 'submitting'},
                 'count_person': {'person'}, 'phone': {'cell-phones'}},
 }
+
+
+# Ngưỡng đã hiệu chỉnh trên tập val coco_person_phone (imgsz 960), kiểm tra trên test; xem MODEL_EVALUATION.md.
+# Mỗi tín hiệu dùng ngưỡng riêng vì chi phí sai khác nhau:
+#   presence : "có người" (để cảnh báo KHÔNG THẤY NGƯỜI) - ngưỡng thấp => ít bỏ sót => ít báo "không thấy" nhầm
+#   count    : đếm người (để cảnh báo NHIỀU NGƯỜI) - ngưỡng cao => ít người dư => ít báo "nhiều người" nhầm
+#   phone    : điện thoại - ngưỡng cao vì precision quan trọng hơn recall
+#   display  : hộp được vẽ trên giao diện
+CALIBRATION = {
+    'person_coco': {'infer_conf': 0.25, 'presence': 0.25, 'count': 0.50, 'phone': 0.35, 'display_person': 0.35, 'display_phone': 0.35},
+}
+CALIBRATION['person_phone'] = CALIBRATION['person_coco']
+
+
+def display_filter(model_key: str, details: list[dict]) -> list[dict]:
+    """Lọc hộp hiển thị theo ngưỡng hiệu chỉnh (mô hình không có hiệu chỉnh: giữ nguyên)."""
+    cal = CALIBRATION.get(model_key)
+    if not cal:
+        return details
+    keep = []
+    for d in details:
+        lb, c = str(d.get('label', '')).lower(), d.get('confidence')
+        if lb not in ('person', 'cell phone'):  # bỏ 78 lớp COCO không liên quan
+            continue
+        need = cal['display_phone'] if lb == 'cell phone' else cal['display_person']
+        if c is None or c >= need:
+            keep.append(d)
+    return keep
 
 
 @dataclass(frozen=True)
@@ -58,6 +87,19 @@ DEFAULT_RULES = (
 def extract_signals(model_key: str, details: list[dict]) -> dict:
     """Chuyển đầu ra mô hình thành các tín hiệu boolean/đếm."""
     cfg = SIGNAL_LABELS.get(model_key, {'person': None, 'phone': set()})
+    cal = CALIBRATION.get(model_key)
+    if cal:  # tách ngưỡng theo mục đích tín hiệu (xem CALIBRATION)
+        def at_least(lb, d, floor):
+            c = d.get('confidence')
+            return c is None or c >= floor
+        phone_set = cfg['phone']
+        present = [d for d in details if str(d.get('label', '')).lower() in cfg['person'] and at_least(0, d, cal['presence'])]
+        counted = [d for d in details if str(d.get('label', '')).lower() in cfg['person'] and at_least(0, d, cal['count'])]
+        phones = [d for d in details if str(d.get('label', '')).lower() in phone_set and at_least(0, d, cal['phone'])]
+        top = lambda ds: round(max(d['confidence'] for d in ds), 2) if ds and all(d.get('confidence') is not None for d in ds) else None  # noqa: E731
+        return {'has_person': bool(present), 'person_count': len(counted), 'phone': bool(phones), 'suspicious_label': False,
+                'supports_phone': bool(phone_set),
+                'conf': {'phone': top(phones), 'suspicious_label': None, 'multiple_people': top(counted), 'no_person': None}}
     labels = [str(d.get('label', '')).lower() for d in details]
     person_set, phone_set = cfg['person'], cfg['phone']
     persons = [lb for lb in labels if person_set is None or lb in person_set]

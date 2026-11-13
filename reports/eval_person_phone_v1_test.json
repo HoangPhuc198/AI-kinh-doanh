@@ -1,0 +1,148 @@
+{
+ "dataset": "datasets/coco_person_phone",
+ "images": 153,
+ "results": [
+  {
+   "model": "yolo11n_coco",
+   "imgsz": 640,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.905,
+     "gt_large": 179,
+     "recall_small": 0.293,
+     "gt_small": 416,
+     "precision": 0.791,
+     "pred_total": 623,
+     "false_positives": 130,
+     "recall_medium": 0.706,
+     "gt_medium": 296,
+     "recall_all": 0.553,
+     "f1": 0.651
+    },
+    "phone": {
+     "precision": 0.611,
+     "pred_total": 18,
+     "false_positives": 7,
+     "recall_small": 0.0,
+     "gt_small": 14,
+     "recall_medium": 0.667,
+     "gt_medium": 12,
+     "recall_large": 0.6,
+     "gt_large": 5,
+     "recall_all": 0.355,
+     "f1": 0.449
+    }
+   },
+   "latency_ms_mean": 153,
+   "latency_ms_p95": 284
+  },
+  {
+   "model": "yolo11n_coco",
+   "imgsz": 960,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.894,
+     "gt_large": 179,
+     "recall_small": 0.476,
+     "gt_small": 416,
+     "precision": 0.729,
+     "pred_total": 816,
+     "false_positives": 221,
+     "recall_medium": 0.801,
+     "gt_medium": 296,
+     "recall_all": 0.668,
+     "f1": 0.697
+    },
+    "phone": {
+     "precision": 0.737,
+     "pred_total": 19,
+     "false_positives": 5,
+     "recall_small": 0.071,
+     "gt_small": 14,
+     "recall_medium": 0.75,
+     "gt_medium": 12,
+     "recall_large": 0.8,
+     "gt_large": 5,
+     "recall_all": 0.452,
+     "f1": 0.56
+    }
+   },
+   "latency_ms_mean": 339,
+   "latency_ms_p95": 601
+  },
+  {
+   "model": "person_phone",
+   "imgsz": 640,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.112,
+     "gt_large": 179,
+     "recall_small": 0.0,
+     "gt_small": 416,
+     "precision": 0.973,
+     "pred_total": 37,
+     "false_positives": 1,
+     "recall_medium": 0.054,
+     "gt_medium": 296,
+     "recall_all": 0.04,
+     "f1": 0.077
+    },
+    "phone": {
+     "precision": null,
+     "pred_total": 0,
+     "false_positives": 0,
+     "recall_small": 0.0,
+     "gt_small": 14,
+     "recall_medium": 0.0,
+     "gt_medium": 12,
+     "recall_large": 0.0,
+     "gt_large": 5,
+     "recall_all": 0.0
+    }
+   },
+   "latency_ms_mean": 204,
+   "latency_ms_p95": 632
+  },
+  {
+   "model": "person_phone",
+   "imgsz": 960,
+   "conf": 0.25,
+   "iou_nms": 0.7,
+   "classes": {
+    "person": {
+     "recall_large": 0.067,
+     "gt_large": 179,
+     "recall_small": 0.0,
+     "gt_small": 416,
+     "precision": 1.0,
+     "pred_total": 18,
+     "false_positives": 0,
+     "recall_medium": 0.02,
+     "gt_medium": 296,
+     "recall_all": 0.02,
+     "f1": 0.039
+    },
+    "phone": {
+     "precision": null,
+     "pred_total": 0,
+     "false_positives": 0,
+     "recall_small": 0.0,
+     "gt_small": 14,
+     "recall_medium": 0.0,
+     "gt_medium": 12,
+     "recall_large": 0.0,
+     "gt_large": 5,
+     "recall_all": 0.0
+    }
+   },
+   "latency_ms_mean": 339,
+   "latency_ms_p95": 669
+  }
+ ]
+}

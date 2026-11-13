@@ -38,18 +38,21 @@ def iou(a, b):
     return inter / union if union > 0 else 0.0
 
 
-def load_gt(data):
+def load_gt(data, split=None):
+    """split=None: coco128 (id COCO 0/67). split='test'...: dataset 2 lớp của prepare_dataset (0 person, 1 cell phone)."""
     items = []
-    for img in sorted((data / 'images/train2017').glob('*.jpg')):
-        lab = data / 'labels/train2017' / (img.stem + '.txt')
+    classes = GT_CLASSES if split is None else {0: 'person', 1: 'phone'}
+    sub = 'train2017' if split is None else split
+    for img in sorted((data / 'images' / sub).glob('*.jpg')):
+        lab = data / 'labels' / sub / (img.stem + '.txt')
         h, w = cv2.imread(str(img)).shape[:2]
         gts = []
         if lab.is_file():
             for line in lab.read_text().splitlines():
                 c, x, y, bw, bh = line.split()[:5]
-                if int(c) in GT_CLASSES:
+                if int(c) in classes:
                     x, y, bw, bh = float(x)*w, float(y)*h, float(bw)*w, float(bh)*h
-                    gts.append((GT_CLASSES[int(c)], [x-bw/2, y-bh/2, x+bw/2, y+bh/2]))
+                    gts.append((classes[int(c)], [x-bw/2, y-bh/2, x+bw/2, y+bh/2]))
         items.append((img, gts))
     return items
 
@@ -103,10 +106,15 @@ def main():
     ap.add_argument('--imgsz', type=int, nargs='+', default=[640, 960, 1280])
     ap.add_argument('--conf', type=float, nargs='+', default=[0.25])
     ap.add_argument('--iou', type=float, default=0.7)
+    ap.add_argument('--split', default=None, help='test/val cho dataset 2 lớp; bỏ trống = coco128')
+    ap.add_argument('--weights', nargs=2, action='append', metavar=('NAME', 'PATH'), help='thêm mô hình 2 lớp (person, cell phone) để so sánh')
     ap.add_argument('--models', nargs='+', default=list(MODELS))
     a = ap.parse_args()
     runtime.load_torch()
-    items = load_gt(ROOT / a.data)
+    for n, pth in (a.weights or []):
+        MODELS[n] = (pth, {'person': 'person', 'cell phone': 'phone'})
+    a.models = [m for m in a.models if m in MODELS] + [n for n, _ in (a.weights or []) if n not in a.models]
+    items = load_gt(ROOT / a.data, a.split)
     results = []
     for name in a.models:
         weights, mapping = MODELS[name]
