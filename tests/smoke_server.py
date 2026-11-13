@@ -50,7 +50,7 @@ def main():
         else:
             raise SystemExit('Máy chủ không khởi động:\n' + ''.join(log))
         print('status:', status['torch'])
-        st, r = call('/analyze', {'data': data, 'models': ['yolo_duyen', 'duyen', 'paper', 'training', 'gianlan'],
+        st, r = call('/analyze', {'data': data, 'models': ['yolo_duyen', 'duyen', 'paper', 'training', 'gianlan', 'ensemble'],
                                   'confidence': 0.25, 'video': False, 'no_image': True})
         for k, v in r['results'].items():
             print('analyze', k, v.get('error') or f"{len(v['frames'][0]['details'])} đối tượng, {v['frames'][0]['ms']} ms")
@@ -63,7 +63,7 @@ def main():
             st, f = call('/api/live/frame', {'session': s['session'], 'data': rdata}); assert st == 200, f
             print('real image', people.name, 'counts', f['counts'], 'ms', f['ms'])
             call('/api/live/control', {'session': s['session'], 'action': 'stop'})
-        for model in ('yolo_duyen', 'gianlan', 'duyen', 'person_coco'):
+        for model in ('yolo_duyen', 'gianlan', 'duyen', 'person_coco', 'ensemble'):
             st, s = call('/api/live/start', {'model': model, 'confidence': 0.5}); assert st == 200, s
             sid = s['session']
             assert call('/api/live/start', {'model': model})[0] == 409

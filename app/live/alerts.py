@@ -19,7 +19,7 @@ from datetime import datetime
 NEEDS_REVIEW, REVIEWED, DISMISSED = 'needs_review', 'reviewed', 'dismissed'
 REVIEW_STATUSES = (NEEDS_REVIEW, REVIEWED, DISMISSED)
 
-_BEHAVIOR_FLAGS = {'suspicious', 'cheating', 'cheating-behaviour'}
+_BEHAVIOR_FLAGS = {'suspicious', 'cheating', 'cheating-behaviour', 'nghi vấn gian lận'}
 
 # Nhãn nào của mô hình nào được coi là gì. `None` = mọi nhãn đều là một người.
 SIGNAL_LABELS = {
@@ -30,6 +30,8 @@ SIGNAL_LABELS = {
     # gian_lan có cả lớp 'person' lẫn nhãn hành vi chồng lên cùng một người nên chỉ đếm 'person'
     # cho số người; 'invigilator' (giám thị) không tính là thí sinh.
     'person_coco': {'person': {'person'}, 'phone': {'cell phone'}},
+    # ensemble: mỗi hộp người mang nhãn kết luận; điện thoại là hộp riêng. Ngưỡng đã nằm trong app/ensemble.py.
+    'ensemble': {'person': {'bình thường', 'cần chú ý', 'nghi vấn gian lận'}, 'phone': {'cell phone'}},
     'person_phone': {'person': {'person'}, 'phone': {'cell phone'}},
     'gianlan': {'person': {'person', 'normal', 'cheating', 'cheating-behaviour', 'submitting'},
                 'count_person': {'person'}, 'phone': {'cell-phones'}},
@@ -114,6 +116,7 @@ def extract_signals(model_key: str, details: list[dict]) -> dict:
         'phone': any(lb in phone_set for lb in labels),
         'suspicious_label': any(lb in _BEHAVIOR_FLAGS for lb in labels),
         'supports_phone': bool(phone_set),
+        'evidence': next((d.get('evidence') for d in details if str(d.get('label', '')).lower() in _BEHAVIOR_FLAGS and d.get('evidence')), None),
         # độ tin cậy cao nhất của các hộp chứng minh cho tín hiệu (None nếu mô hình không có confidence)
         'conf': {'phone': best(phone_set.__contains__), 'suspicious_label': best(_BEHAVIOR_FLAGS.__contains__),
                  'multiple_people': best(lambda lb: person_set is None or lb in person_set), 'no_person': None},
@@ -181,6 +184,7 @@ class AlertEngine:
                     'mode': self.mode,
                     'confidence': signals.get('conf', {}).get(rule.type),
                     'frames': track.frames,
+                    'evidence': signals.get('evidence') if rule.type == 'suspicious_label' else None,
                     'duration_s': round(now - track.since, 1),
                     'status': NEEDS_REVIEW,
                     'note': 'Tín hiệu cần giám thị xem xét; không phải kết luận gian lận.',

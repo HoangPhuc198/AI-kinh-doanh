@@ -5,7 +5,7 @@ from urllib.parse import urlparse, parse_qs
 import cv2
 import numpy as np
 import runtime
-from inference import ALLOWED_IMGSZ, MODELS, PROJECT, run_model, warm_model
+from inference import ALLOWED_IMGSZ, MODELS, PROJECT, required_files, run_model, warm_model
 from live.alerts import CALIBRATION, display_filter, extract_signals
 from live.session import SessionManager, SessionBusy, SessionNotFound
 
@@ -38,16 +38,16 @@ def report_data():
             'yolo_duyen_dataset': read_json(PROJECT/'reports/yolo11_duyen/dataset_summary.json'),
             'snapshots': snapshots}
 
-LIVE_MODELS = ('person_phone', 'person_coco', 'yolo_duyen', 'training', 'gianlan', 'paper', 'duyen')
+LIVE_MODELS = ('ensemble', 'person_phone', 'person_coco', 'yolo_duyen', 'training', 'gianlan', 'paper', 'duyen')
 
 def live_status():
     return {'torch': runtime.torch_status(), 'loaded_models': runtime.loaded_models(),
-            'models': {k: MODELS[k][0] for k in LIVE_MODELS}, 'calibrated': sorted(CALIBRATION), 'session': sessions.active()}
+            'models': {k: MODELS[k][0] for k in LIVE_MODELS}, 'calibrated': sorted(set(CALIBRATION) | {'ensemble'}), 'session': sessions.active()}
 
 def live_start(req):
     key = req.get('model')
     if key not in LIVE_MODELS: raise ValueError('Mô hình không hợp lệ.')
-    if not all(p.is_file() for p in [MODELS[key][1]] + ([MODELS['duyen'][1].parent/'yolo11n-pose.pt'] if key in ('paper','duyen') else [])):
+    if not all(p.is_file() for p in required_files(key)):
         raise FileNotFoundError('Thiếu tệp trọng số của mô hình này.')
     confidence = max(0.01, min(1.0, float(req.get("confidence", .5))))
     mode = req.get('mode', 'single')
@@ -59,7 +59,7 @@ def live_start(req):
         warm_model(key)
     except BaseException:
         sessions.stop(session.id); raise
-    return 200, {'session': session.id, 'model': MODELS[key][0], 'supports_phone': extract_signals(key, [])['supports_phone'], 'mode': mode, 'calibrated': key in CALIBRATION}
+    return 200, {'session': session.id, 'model': MODELS[key][0], 'supports_phone': extract_signals(key, [])['supports_phone'], 'mode': mode, 'calibrated': key in CALIBRATION or key == 'ensemble'}
 
 def live_frame(req):
     session = sessions.get(req.get('session'))

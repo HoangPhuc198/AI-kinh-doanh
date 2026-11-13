@@ -18,6 +18,8 @@ MODELS = {
     # Bộ phát hiện đối tượng tổng quát (COCO) có lớp person + cell phone; dùng cho đếm người/điện thoại.
     'person_coco': ('YOLO11n COCO (người + điện thoại)', PROJECT/'models/yolo11n_coco.pt'),
     # Fine-tune từ person_coco trên dataset MỚI coco_person_phone (COCO val2017 lọc, 1014 ảnh); xem TRAINING_REPORT.md.
+    # Mô hình tổng hợp: gộp person_coco + yolo_duyen + gianlan + KNN Duyên (xem app/ensemble.py).
+    'ensemble': ('ExamVision Ensemble (tổng hợp, phát hiện nghi vấn gian lận)', PROJECT/'models/yolo11n_coco.pt'),
     'person_phone': ('YOLO11n Người+ĐT v1 (dataset mới, thử nghiệm - KÉM)', PROJECT/'models/yolo11_person_phone.pt'),
 }
 POSE_KEYS = ('paper', 'duyen')
@@ -34,7 +36,23 @@ def _classifier_path(key):
     return str(MODELS['duyen'][1]) if key == 'duyen' else None
 
 
+def required_files(key):
+    """Mọi tệp trọng số cần có để chạy mô hình `key`."""
+    if key == 'ensemble':
+        import ensemble
+        return sorted({p for k in ensemble.components() for p in required_files(k)})
+    files = [MODELS[key][1]]
+    if key in POSE_KEYS:
+        files.append(MODELS['paper'][1])
+    return files
+
+
 def warm_model(key):
+    if key == 'ensemble':
+        import ensemble
+        for k in ensemble.components():
+            warm_model(k)
+        return
     """Nạp trước trọng số (một lần mỗi tiến trình) để khung đầu tiên không bị chậm."""
     if key in POSE_KEYS:
         import paper_detector
@@ -49,6 +67,9 @@ def run_model(key, frame, confidence, include_image=True, imgsz=None, iou=None):
     """imgsz/iou chỉ áp dụng cho mô hình YOLO detect; mô hình pose+KNN giữ cấu hình riêng."""
     if imgsz is not None and imgsz not in ALLOWED_IMGSZ:
         raise ValueError(f'imgsz phải thuộc {ALLOWED_IMGSZ}')
+    if key == 'ensemble':
+        import ensemble
+        return ensemble.run(frame, include_image=include_image, imgsz=imgsz)
     started = time.perf_counter()
     with runtime.inference_lock:
         if key in POSE_KEYS:

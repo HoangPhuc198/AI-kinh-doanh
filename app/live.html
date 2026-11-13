@@ -281,7 +281,7 @@
               </select></label
             >
           </div>
-          <div id="calnote" class="msg" hidden>Mô hình này dùng ngưỡng đã hiệu chỉnh sẵn (người hiển thị ≥0.35, đếm nhiều người ≥0.50, điện thoại ≥0.35); thanh ngưỡng bị khóa.</div>
+          <div id="calnote" class="msg" hidden>Mô hình này dùng ngưỡng đã hiệu chỉnh sẵn (không chỉnh bằng thanh trượt).</div>
           <div id="msg" class="msg" role="status">Chưa bật webcam.</div>
           <div class="notice">Cảnh báo chỉ là <b>tín hiệu nghi vấn cần giám thị xem xét</b>, không phải kết luận gian lận và không dùng để xử phạt. Hệ thống không nhận diện danh tính, không thu âm. Chưa hỗ trợ phát hiện hướng đầu/ánh nhìn vì chưa có mô hình được kiểm chứng.</div>
         </section>
@@ -497,8 +497,9 @@
         for (const d of lastDetails) {
           if (!d.box) continue;
           const [a, b, c, e] = d.box,
-            bad = /cheat|suspicious/i.test(d.label),
-            col = bad ? "#ff4b48" : "#21ec9e";
+            bad = /cheat|suspicious|nghi vấn/i.test(d.label),
+            warn = /chú ý/i.test(d.label),
+            col = bad ? "#ff4b48" : warn ? "#f0a82a" : "#21ec9e";
           g.strokeStyle = col;
           g.lineWidth = 3;
           g.strokeRect(ox + a * vw, oy + b * vh, (c - a) * vw, (e - b) * vh);
@@ -519,7 +520,7 @@
               .reverse()
               .map(
                 (a) =>
-                  `<div class="alert ${esc(a.severity)} ${a.status === "dismissed" ? "dismissed" : ""}"><b>${esc(TYPES[a.type] || a.type)}</b> · mức ${esc(SEV[a.severity] || a.severity)}<br>${esc(a.description)}<small>${esc(a.time)} · kéo dài ~${a.duration_s}s · ${a.frames || "?"} khung · độ tin cậy ${a.confidence == null ? "n/a" : Math.round(a.confidence * 100) + "%"} · ${esc(a.model)} · ${a.mode === "room" ? "toàn phòng" : "một thí sinh"}</small><select data-id="${a.id}">${Object.entries(STATUS)
+                  `<div class="alert ${esc(a.severity)} ${a.status === "dismissed" ? "dismissed" : ""}"><b>${esc(TYPES[a.type] || a.type)}</b> · mức ${esc(SEV[a.severity] || a.severity)}<br>${esc(a.description)}<small>${esc(a.time)} · kéo dài ~${a.duration_s}s · ${a.frames || "?"} khung · độ tin cậy ${a.confidence == null ? "n/a" : Math.round(a.confidence * 100) + "%"} · ${esc(a.model)} · ${a.mode === "room" ? "toàn phòng" : "một thí sinh"}</small>${a.evidence ? `<small>Bằng chứng: ${esc(a.evidence.join("; "))}</small>` : ""}<select data-id="${a.id}">${Object.entries(STATUS)
                     .map(([k, n]) => `<option value="${k}" ${a.status === k ? "selected" : ""}>${n}</option>`)
                     .join("")}</select></div>`,
               )
