@@ -503,7 +503,7 @@
           g.strokeStyle = col;
           g.lineWidth = 3;
           g.strokeRect(ox + a * vw, oy + b * vh, (c - a) * vw, (e - b) * vh);
-          const t = d.label + (d.confidence == null ? "" : " " + Math.round(d.confidence * 100) + "%");
+          const t = d.label + (d.confidence == null ? "" : " " + d.confidence.toFixed(2));
           g.font = "bold 13px sans-serif";
           const tw = g.measureText(t).width + 10;
           const ty = Math.max(oy, oy + b * vh - 20);
@@ -520,7 +520,7 @@
               .reverse()
               .map(
                 (a) =>
-                  `<div class="alert ${esc(a.severity)} ${a.status === "dismissed" ? "dismissed" : ""}"><b>${esc(TYPES[a.type] || a.type)}</b> · mức ${esc(SEV[a.severity] || a.severity)}<br>${esc(a.description)}<small>${esc(a.time)} · kéo dài ~${a.duration_s}s · ${a.frames || "?"} khung · độ tin cậy ${a.confidence == null ? "n/a" : Math.round(a.confidence * 100) + "%"} · ${esc(a.model)} · ${a.mode === "room" ? "toàn phòng" : "một thí sinh"}</small>${a.evidence ? `<small>Bằng chứng: ${esc(a.evidence.join("; "))}</small>` : ""}<select data-id="${a.id}">${Object.entries(STATUS)
+                  `<div class="alert ${esc(a.severity)} ${a.status === "dismissed" ? "dismissed" : ""}"><b>${esc(TYPES[a.type] || a.type)}</b> · mức ${esc(SEV[a.severity] || a.severity)}<br>${esc(a.description)}<small>${esc(a.time)} · kéo dài ~${a.duration_s}s · ${a.frames || "?"} khung · độ tin cậy ${a.confidence == null ? "n/a" : a.confidence.toFixed(2)} · ${esc(a.model)} · ${a.mode === "room" ? "toàn phòng" : "một thí sinh"}</small>${a.evidence ? `<small>Bằng chứng: ${esc(a.evidence.join("; "))}</small>` : ""}<select data-id="${a.id}">${Object.entries(STATUS)
                     .map(([k, n]) => `<option value="${k}" ${a.status === k ? "selected" : ""}>${n}</option>`)
                     .join("")}</select></div>`,
               )

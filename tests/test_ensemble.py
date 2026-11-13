@@ -142,3 +142,34 @@ class DrawTests(unittest.TestCase):
 
     def test_ascii_fallback_removes_diacritics(self):
         self.assertEqual(ensemble._ascii('Nghi vấn gian lận Đ'), 'Nghi van gian lan D')
+
+
+class SchedulingTests(unittest.TestCase):
+    def test_behavior_models_run_every_other_frame_and_are_reused(self):
+        import inference
+        calls = []
+
+        def run_model(key, frame, conf, include_image=True, imgsz=None, iou=None, state=None):
+            calls.append(key)
+            det = {'person_coco': [person(P1)], 'yolo_duyen': [{'label': 'Cheating', 'confidence': 0.9, 'box': P1}],
+                   'duyen': [{'label': 'Suspicious', 'confidence': None, 'box': P1}]}.get(key, [])
+            return {'details': det, 'counts': {}, 'ms': 1}
+        state, outs = {}, []
+        with mock.patch.object(inference, 'run_model', run_model):
+            for _ in range(4):
+                outs.append(ensemble.run(np.zeros((60, 80, 3), np.uint8), include_image=False, state=state))
+        self.assertEqual([o['behavior_reused'] for o in outs], [False, True, False, True])
+        self.assertEqual(calls.count('person_coco'), 4)          # neo người chạy mọi khung
+        self.assertEqual(calls.count('yolo_duyen'), 2)           # mô hình hành vi chỉ 2/4 khung
+        self.assertTrue(all(o['counts'] == {LABEL_SUSPECT: 1} for o in outs))  # kết luận ổn định cả khung dùng lại
+
+    def test_no_state_runs_everything_each_call(self):
+        import inference
+        seen = []
+
+        def run_model(key, frame, conf, include_image=True, imgsz=None, iou=None, state=None):
+            seen.append(key)
+            return {'details': [], 'counts': {}, 'ms': 1}
+        with mock.patch.object(inference, 'run_model', run_model):
+            ensemble.run(np.zeros((60, 80, 3), np.uint8), include_image=False)
+        self.assertEqual(sorted(seen), sorted(ensemble.components()))

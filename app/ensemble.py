@@ -18,6 +18,7 @@ Trọng số nguồn và ngưỡng điểm là HEURISTIC đặt theo độ tin c
 from __future__ import annotations
 
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import cv2
 import numpy as np
@@ -151,11 +152,11 @@ def fuse(anchor: list[dict], sources: dict[str, list[dict]]) -> dict:
             e = per_source[key][idx]
             votes[key] = e or 0.0
             if e:
-                why.append(f'{SOURCE_NAMES[key]} nghi vấn ({e:.0%})' if key != 'duyen' else f'{SOURCE_NAMES[key]}: tư thế nghi vấn')
+                why.append(f'{SOURCE_NAMES[key]} nghi vấn ({e:.2f})' if key != 'duyen' else f'{SOURCE_NAMES[key]}: tư thế nghi vấn')
         near = [ph for ph in phones if center_in(ph['box'], p['box'])]
         votes['phone'] = max((ph['confidence'] for ph in near), default=0.0)
         if near:
-            why.append(f"Điện thoại gần người ({votes['phone']:.0%})")
+            why.append(f"Điện thoại gần người ({votes['phone']:.2f})")
         label, score = decide(votes)
         shown = round(1 - score if label == LABEL_NORMAL else score, 3)  # độ chắc của chính nhãn đang hiển thị
         out_people.append({'label': label, 'confidence': shown, 'score': round(score, 3), 'box': p['box'], 'person_conf': p['person_conf'],
@@ -206,7 +207,7 @@ def _draw(frame, people, phones):
         x0, y0, x1, y1 = b[0] * w, b[1] * h, b[2] * w, b[3] * h
         r, gc, bl = COLORS[label][::-1]
         g.rectangle([x0, y0, x1, y1], outline=(r, gc, bl), width=max(2, int(3 * scale)))
-        text = f'{label} {conf:.0%}' if conf is not None else label
+        text = f'{label} {conf:.2f}' if conf is not None else label
         text = text if unicode_ok else _ascii(text)
         l, t, rr, bb = g.textbbox((0, 0), text, font=font)
         th = bb - t
@@ -220,20 +221,54 @@ def components():
     return ['person_coco', *BEHAVIOR_SOURCES]
 
 
-def run(frame, include_image=True, imgsz=None):
-    """Chạy tất cả mô hình thành phần trên một khung rồi hợp nhất. Trả cùng định dạng với `inference.run_model`."""
+BEHAVIOR_EVERY = 2        # mô hình hành vi chạy mỗi N khung của một phiên; khung còn lại dùng lại kết quả gần nhất (hành vi đổi chậm)
+THREADS_PARALLEL = 3      # đo trên Ryzen 5 4600H: 4 mô hình song song nhanh nhất ở 2-3 luồng/mô hình (6 luồng: 1285 ms, 3 luồng: 759 ms)
+THREADS_SOLO = 6
+_POOL = ThreadPoolExecutor(max_workers=4, thread_name_prefix='ensemble')
+
+
+def run(frame, include_image=True, imgsz=None, state=None):
+    """Chạy các mô hình thành phần (song song) trên một khung rồi hợp nhất. Cùng định dạng với `inference.run_model`.
+
+    `state` (dict, mỗi phiên một cái) bật lịch bỏ qua khung: mô hình hành vi chỉ chạy mỗi BEHAVIOR_EVERY khung.
+    Không truyền `state` (ví dụ tải ảnh/video lên) thì chạy đủ mọi mô hình ở mọi khung.
+    """
     import inference  # nhập muộn để tránh vòng import
+    import runtime
     started = time.perf_counter()
     timings, errors = {}, {}
-    anchor = inference.run_model('person_coco', frame, 0.25, include_image=False, imgsz=imgsz)
-    timings['person_coco'] = anchor['ms']
+    if state is None:
+        fresh = True
+    else:
+        state['n'] = state.get('n', -1) + 1
+        fresh = state['n'] % BEHAVIOR_EVERY == 0 or 'sources' not in state
+    runtime.set_threads(THREADS_PARALLEL if fresh else THREADS_SOLO)
+
+    def call(key, conf, size):
+        return inference.run_model(key, frame, conf, include_image=False, imgsz=size)
+    futs = {'person_coco': _POOL.submit(call, 'person_coco', 0.25, imgsz or inference.ENSEMBLE_IMGSZ)}
+    if fresh:
+        for key, (_, conf, _, _) in BEHAVIOR_SOURCES.items():
+            futs[key] = _POOL.submit(call, key, conf, None)
     sources = {}
-    for key, (_, conf, _, _) in BEHAVIOR_SOURCES.items():
+    for key, fut in futs.items():
         try:
-            r = inference.run_model(key, frame, conf, include_image=False)
-            sources[key], timings[key] = r['details'], r['ms']
-        except Exception as exc:  # một nguồn lỗi không làm hỏng cả khung; ghi nhận để hiển thị trung thực
-            errors[key] = str(exc)[:200]
+            r = fut.result()
+        except Exception as exc:
+            if key == 'person_coco':
+                raise  # neo người là bắt buộc
+            errors[key] = str(exc)[:200]  # một nguồn hành vi lỗi không làm hỏng cả khung; ghi nhận để hiển thị trung thực
+            continue
+        timings[key] = r['ms']
+        if key == 'person_coco':
+            anchor = r
+        else:
+            sources[key] = r['details']
+    if state is not None:
+        if fresh:
+            state['sources'] = sources
+        else:
+            sources = state['sources']
     fused = fuse(anchor['details'], sources)
     details = [{'label': p['label'], 'confidence': p['confidence'], 'box': p['box'], 'score': p['score'], 'person_conf': p['person_conf'],
                 'votes': p['votes'], 'evidence': p['evidence']} for p in fused['people']]
@@ -241,7 +276,8 @@ def run(frame, include_image=True, imgsz=None):
     counts = {}
     for d in details:
         counts[d['label']] = counts.get(d['label'], 0) + 1
-    out = {'details': details, 'counts': counts, 'ms': round((time.perf_counter() - started) * 1000), 'timings': timings, 'errors': errors}
+    out = {'details': details, 'counts': counts, 'ms': round((time.perf_counter() - started) * 1000), 'timings': timings, 'errors': errors,
+           'behavior_reused': not fresh}
     if include_image:
         ok, enc = cv2.imencode('.jpg', _draw(frame, fused['people'], fused['phones']), [cv2.IMWRITE_JPEG_QUALITY, 80])
         if not ok:

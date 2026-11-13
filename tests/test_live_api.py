@@ -34,7 +34,7 @@ class LiveApi(unittest.TestCase):
         def warm(key):
             self.calls['warm'] += 1
 
-        def infer(key, frame, conf, include_image=True, imgsz=None, iou=None):
+        def infer(key, frame, conf, include_image=True, imgsz=None, iou=None, state=None):
             self.calls['infer'] += 1
             self.calls['imgsz'] = imgsz
             assert include_image is False

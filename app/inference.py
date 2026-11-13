@@ -16,17 +16,18 @@ MODELS = {
     'paper': ('KNN bài báo', PROJECT/'models/yolo11n-pose.pt'),
     'duyen': ('KNN dataset Duyên', PROJECT/'models/duyen_knn.joblib'),
     # Bộ phát hiện đối tượng tổng quát (COCO) có lớp person + cell phone; dùng cho đếm người/điện thoại.
-    'person_coco': ('YOLO11n COCO (người + điện thoại)', PROJECT/'models/yolo11n_coco.pt'),
+    'person_coco': ('YOLO11n COCO', PROJECT/'models/yolo11n_coco.pt'),
     # Fine-tune từ person_coco trên dataset MỚI coco_person_phone (COCO val2017 lọc, 1014 ảnh); xem TRAINING_REPORT.md.
     # Mô hình tổng hợp: gộp person_coco + yolo_duyen + gianlan + KNN Duyên (xem app/ensemble.py).
-    'ensemble': ('ExamVision Ensemble (tổng hợp, phát hiện nghi vấn gian lận)', PROJECT/'models/yolo11n_coco.pt'),
-    'person_phone': ('YOLO11n Người+ĐT v1 (dataset mới, thử nghiệm - KÉM)', PROJECT/'models/yolo11_person_phone.pt'),
+    'ensemble': ('ExamVision Ensemble', PROJECT/'models/yolo11n_coco.pt'),
+    'person_phone': ('YOLO11n Người+ĐT v1', PROJECT/'models/yolo11_person_phone.pt'),
 }
 POSE_KEYS = ('paper', 'duyen')
 # imgsz mặc định theo mô hình (None = mặc định Ultralytics 640). Giá trị 960 dựa trên
 # training/eval_person.py: recall người nhỏ tăng từ 0.32 (640) lên 0.45 (960) với chi phí ~2.3x thời gian.
 DEFAULT_IMGSZ = {'person_coco': 960}
-ALLOWED_IMGSZ = (640, 960, 1280)
+ENSEMBLE_IMGSZ = 800  # đo trên test: recall người 0.54 (800) so với 0.60 (960), nhanh hơn ~35-40%
+ALLOWED_IMGSZ = (640, 800, 960, 1280)
 
 
 _device = runtime.device
@@ -48,30 +49,30 @@ def required_files(key):
 
 
 def warm_model(key):
+    """Nạp trước trọng số (một lần mỗi tiến trình) để khung đầu tiên không bị chậm."""
     if key == 'ensemble':
         import ensemble
         for k in ensemble.components():
             warm_model(k)
         return
-    """Nạp trước trọng số (một lần mỗi tiến trình) để khung đầu tiên không bị chậm."""
     if key in POSE_KEYS:
         import paper_detector
         paper_detector.get_models(_classifier_path(key))
     else:
         model = runtime.get_yolo(MODELS[key][1])
-        with runtime.inference_lock:  # khởi động các lớp bằng một lần suy luận trên ảnh đen
+        with runtime.model_lock(key):  # khởi động các lớp bằng một lần suy luận trên ảnh đen
             model.predict(np.zeros((480, 640, 3), np.uint8), verbose=False, device=_device(), imgsz=DEFAULT_IMGSZ.get(key, 640))
 
 
-def run_model(key, frame, confidence, include_image=True, imgsz=None, iou=None):
+def run_model(key, frame, confidence, include_image=True, imgsz=None, iou=None, state=None):
     """imgsz/iou chỉ áp dụng cho mô hình YOLO detect; mô hình pose+KNN giữ cấu hình riêng."""
     if imgsz is not None and imgsz not in ALLOWED_IMGSZ:
         raise ValueError(f'imgsz phải thuộc {ALLOWED_IMGSZ}')
     if key == 'ensemble':
         import ensemble
-        return ensemble.run(frame, include_image=include_image, imgsz=imgsz)
+        return ensemble.run(frame, include_image=include_image, imgsz=imgsz, state=state)
     started = time.perf_counter()
-    with runtime.inference_lock:
+    with runtime.model_lock('pose' if key in POSE_KEYS else key):  # paper và duyen dùng chung một mô hình pose
         if key in POSE_KEYS:
             import paper_detector
             detections = paper_detector.infer(frame, threshold=confidence, classifier_path=_classifier_path(key))

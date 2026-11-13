@@ -69,7 +69,7 @@ def live_frame(req):
     frame = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
     if frame is None: raise ValueError('Không giải mã được khung hình.')
     cal = CALIBRATION.get(session.model_key)
-    result = run_model(session.model_key, frame, cal['infer_conf'] if cal else session.confidence, include_image=False, imgsz=session.imgsz)
+    result = run_model(session.model_key, frame, cal['infer_conf'] if cal else session.confidence, include_image=False, imgsz=session.imgsz, **({'state': session.ens_state} if session.model_key == 'ensemble' else {}))
     with session.lock:
         new = session.engine.update(extract_signals(session.model_key, result['details']), session.model_name)
         session.record(new)

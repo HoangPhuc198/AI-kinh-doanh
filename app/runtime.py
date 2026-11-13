@@ -13,7 +13,7 @@ Quy tắc ở đây:
 * Nếu lần import đó lỗi, lỗi gốc được lưu lại và ném lại nguyên vẹn; không bao giờ
   import lại, không reload, không xóa `sys.modules`.
 * Mỗi trọng số YOLO chỉ nạp một lần cho mỗi tiến trình.
-* Suy luận được tuần tự hóa bằng một khóa vì Ultralytics predictor không an toàn đa luồng.
+* Suy luận được tuần tự hóa theo từng mô hình (khóa riêng) vì Ultralytics predictor không an toàn đa luồng.
 """
 from __future__ import annotations
 
@@ -28,8 +28,22 @@ _import_error: BaseException | None = None
 _models: dict[str, object] = {}
 _models_lock = threading.Lock()
 
-# Một khóa cho toàn bộ suy luận: CPU/GPU là tài nguyên chung, predictor không thread-safe.
-inference_lock = threading.Lock()
+# Predictor của Ultralytics không thread-safe TRÊN CÙNG MỘT mô hình, nhưng các mô hình khác nhau độc lập:
+# mỗi mô hình có một khóa riêng để ensemble chạy chúng song song.
+_locks: dict[str, threading.Lock] = {}
+_locks_guard = threading.Lock()
+
+
+def model_lock(name: str) -> threading.Lock:
+    with _locks_guard:
+        return _locks.setdefault(name, threading.Lock())
+
+
+def set_threads(n: int):
+    """Số luồng CPU cho PyTorch (toàn tiến trình). Chạy nhiều mô hình song song thì mỗi mô hình nên dùng ít luồng hơn."""
+    torch = load_torch()
+    if torch.get_num_threads() != n:
+        torch.set_num_threads(n)
 
 
 class TorchUnavailable(RuntimeError):

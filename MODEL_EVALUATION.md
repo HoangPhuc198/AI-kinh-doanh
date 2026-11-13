@@ -68,3 +68,14 @@ Cỡ mẫu nhỏ (3–8 khung sai) nên chênh lệch mang tính gợi ý, khôn
 
 ## Bằng chứng về nhóm model "Cheating" (Duyên/KNN)
 Từ `reports/knn_duyen/*.json` (số liệu của tác giả, không tái tạo được vì dữ liệu Duyên không có trong dự án): KNN chia ngẫu nhiên: precision/recall/F1 "Cheating" = 0,84/0,75/0,79; **leave-one-video-out: 0,32/0,24/0,27** (3 video, từng fold F1 từ 0,09 đến 0,33). Chênh lệch lớn cho thấy số chia ngẫu nhiên bị thổi phồng do khung gần giống nhau; YOLO11 Duyên (mAP50 0,935, cùng cách chia) nhiều khả năng cũng vậy. Chưa có bằng chứng các nhãn hành vi này hoạt động tốt trên video mới.
+
+## Tối ưu độ trễ ensemble (CPU AMD Ryzen 5 4600H, 6 nhân, không dùng GPU)
+Đo trên 24 ảnh test, mô phỏng một phiên webcam. Thay đổi: (1) các mô hình chạy **song song** với khóa riêng từng mô hình và 3 luồng CPU mỗi mô hình (song song 4 mô hình: 6 luồng 1285 ms, 3 luồng 759 ms/khung, so với tuần tự 1054 ms); (2) mô hình hành vi chỉ chạy **mỗi 2 khung** của một phiên, khung còn lại dùng lại kết quả gần nhất (neo người vẫn chạy mọi khung); (3) neo người dùng 800 px thay vì 960 (test: recall người 0,54 so với 0,60, người nhỏ 0,30 so với 0,38, nhanh hơn khoảng 35 %); (4) bỏ `training`.
+
+| | Độ trễ TB mỗi khung |
+| --- | --- |
+| Trước (5 mô hình tuần tự, 960 px) | khoảng 1.100–2.100 ms (đo ở các lần chạy khác nhau, nhiễu do máy bận) |
+| Sau, phiên webcam | **628 ms** (p95 1.281; khung đủ 921, khung dùng lại 335) ≈ 1,6 khung/giây |
+| Sau, tải ảnh lẻ (không bỏ qua khung) | 1.152 ms |
+
+Đánh đổi: kết quả hành vi có thể cũ tối đa 1 khung; recall người nhỏ giảm so với 960 px (chọn 960 ở giao diện nếu cần). Hạn chế còn lại là CPU; ước lượng GPU (GTX 1650) sẽ nhanh hơn nhiều lần nhưng **chưa đo**, vì PyTorch hiện là bản CPU. Điểm tin cậy hiển thị theo dạng 0–1 (ví dụ 0.84).

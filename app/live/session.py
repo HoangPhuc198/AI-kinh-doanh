@@ -24,6 +24,7 @@ class LiveSession:
         self.id = secrets.token_urlsafe(12)
         self.model_key, self.model_name, self.confidence = model_key, model_name, confidence
         self.mode, self.imgsz = mode, imgsz
+        self.ens_state: dict = {}  # lịch bỏ qua khung của ensemble (mỗi phiên một cái)
         self.engine = AlertEngine(clock=clock, mode=mode)
         self.alerts: list[dict] = []
         self.frames = 0

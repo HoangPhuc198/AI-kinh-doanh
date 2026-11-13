@@ -1,0 +1,114 @@
+{
+ "dataset": "datasets/coco_person_phone",
+ "images": 153,
+ "results": [
+  {
+   "model": "yolo11n_coco",
+   "imgsz": 640,
+   "conf": 0.35,
+   "iou_nms": 0.7,
+   "classes": {
+    "phone": {
+     "precision": 0.733,
+     "pred_total": 15,
+     "false_positives": 4,
+     "recall_small": 0.0,
+     "gt_small": 14,
+     "recall_medium": 0.667,
+     "gt_medium": 12,
+     "recall_large": 0.6,
+     "gt_large": 5,
+     "recall_all": 0.355,
+     "f1": 0.478
+    },
+    "person": {
+     "recall_large": 0.883,
+     "gt_large": 179,
+     "recall_small": 0.231,
+     "gt_small": 416,
+     "precision": 0.868,
+     "pred_total": 509,
+     "false_positives": 67,
+     "recall_medium": 0.635,
+     "gt_medium": 296,
+     "recall_all": 0.496,
+     "f1": 0.631
+    }
+   },
+   "latency_ms_mean": 184,
+   "latency_ms_p95": 365
+  },
+  {
+   "model": "yolo11n_coco",
+   "imgsz": 800,
+   "conf": 0.35,
+   "iou_nms": 0.7,
+   "classes": {
+    "phone": {
+     "precision": 0.786,
+     "pred_total": 14,
+     "false_positives": 3,
+     "recall_small": 0.071,
+     "gt_small": 14,
+     "recall_medium": 0.5,
+     "gt_medium": 12,
+     "recall_large": 0.8,
+     "gt_large": 5,
+     "recall_all": 0.355,
+     "f1": 0.489
+    },
+    "person": {
+     "recall_large": 0.877,
+     "gt_large": 179,
+     "recall_small": 0.296,
+     "gt_small": 416,
+     "precision": 0.843,
+     "pred_total": 572,
+     "false_positives": 90,
+     "recall_medium": 0.682,
+     "gt_medium": 296,
+     "recall_all": 0.541,
+     "f1": 0.659
+    }
+   },
+   "latency_ms_mean": 244,
+   "latency_ms_p95": 456
+  },
+  {
+   "model": "yolo11n_coco",
+   "imgsz": 960,
+   "conf": 0.35,
+   "iou_nms": 0.7,
+   "classes": {
+    "phone": {
+     "precision": 0.765,
+     "pred_total": 17,
+     "false_positives": 4,
+     "recall_small": 0.071,
+     "gt_small": 14,
+     "recall_medium": 0.667,
+     "gt_medium": 12,
+     "recall_large": 0.8,
+     "gt_large": 5,
+     "recall_all": 0.419,
+     "f1": 0.541
+    },
+    "person": {
+     "recall_large": 0.877,
+     "gt_large": 179,
+     "recall_small": 0.375,
+     "gt_small": 416,
+     "precision": 0.825,
+     "pred_total": 650,
+     "false_positives": 114,
+     "recall_medium": 0.753,
+     "gt_medium": 296,
+     "recall_all": 0.602,
+     "f1": 0.696
+    }
+   },
+   "latency_ms_mean": 393,
+   "latency_ms_p95": 744
+  }
+ ]
+}
