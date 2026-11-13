@@ -79,3 +79,15 @@ Từ `reports/knn_duyen/*.json` (số liệu của tác giả, không tái tạo
 | Sau, tải ảnh lẻ (không bỏ qua khung) | 1.152 ms |
 
 Đánh đổi: kết quả hành vi có thể cũ tối đa 1 khung; recall người nhỏ giảm so với 960 px (chọn 960 ở giao diện nếu cần). Hạn chế còn lại là CPU; ước lượng GPU (GTX 1650) sẽ nhanh hơn nhiều lần nhưng **chưa đo**, vì PyTorch hiện là bản CPU. Điểm tin cậy hiển thị theo dạng 0–1 (ví dụ 0.84).
+
+## Tối ưu độ trễ lần 2 (vẫn CPU, không GPU)
+Ba thay đổi: (1) **cổng chuyển động**: so ảnh xám 64×48 với khung của lần suy luận thật gần nhất, cảnh không đổi (độ lệch TB ≤3/255 và <0,4 % điểm ảnh đổi >25 mức) thì dùng lại kết quả, nhưng luôn suy luận lại sau tối đa 1 s; (2) **KNN chỉ chạy khi cần**: theo luật `decide`, KNN không đổi nhãn khi chưa có YOLO11 Duyên/Gian lận nghi vấn, nên chỉ chạy sau khi một nguồn mạnh đã nghi vấn (tiết kiệm khoảng 300 ms/lần suy luận); (3) **không phóng to khung** nhỏ hơn `imgsz` (giao diện mặc định gửi 800 px, khớp `imgsz` 800).
+
+Đo mô phỏng phiên webcam (5 khung/giây, ảnh 800×600, nhiễu cảm biến σ=2, `training/` không dùng):
+| Kịch bản | Độ trễ TB | p95 | Khung dùng lại kết quả |
+| --- | --- | --- | --- |
+| Thí sinh ngồi yên | **55 ms** | 307 ms | 24/30 |
+| Cảnh đổi liên tục (xấu nhất) | **275 ms** | 513 ms | 0/24 |
+| (lần tối ưu 1, đổi liên tục) | 628 ms | 1281 ms | — |
+
+Đánh đổi/giới hạn: ở khung dùng lại, kết quả có thể cũ tối đa 1 s; chuyển động rất nhỏ (dưới ngưỡng) trong cảnh đứng yên có thể bị trễ tới 1 s mới được thấy; "đổi liên tục" dùng ảnh khác nhau mỗi khung (ảnh tĩnh COCO), không phải video thật; chưa đo trên webcam vật lý. Test: `tests/test_ensemble.py` (cổng chuyển động, KNN cascade, không phóng to khung).

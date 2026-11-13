@@ -156,8 +156,9 @@ class SchedulingTests(unittest.TestCase):
             return {'details': det, 'counts': {}, 'ms': 1}
         state, outs = {}, []
         with mock.patch.object(inference, 'run_model', run_model):
-            for _ in range(4):
-                outs.append(ensemble.run(np.zeros((60, 80, 3), np.uint8), include_image=False, state=state))
+            for i in range(4):  # khung khác nhau mỗi lần để cổng chuyển động không dùng lại kết quả
+                frame = np.random.default_rng(i).integers(0, 255, (60, 80, 3), dtype=np.uint8)
+                outs.append(ensemble.run(frame, include_image=False, state=state))
         self.assertEqual([o['behavior_reused'] for o in outs], [False, True, False, True])
         self.assertEqual(calls.count('person_coco'), 4)          # neo người chạy mọi khung
         self.assertEqual(calls.count('yolo_duyen'), 2)           # mô hình hành vi chỉ 2/4 khung
@@ -172,4 +173,45 @@ class SchedulingTests(unittest.TestCase):
             return {'details': [], 'counts': {}, 'ms': 1}
         with mock.patch.object(inference, 'run_model', run_model):
             ensemble.run(np.zeros((60, 80, 3), np.uint8), include_image=False)
-        self.assertEqual(sorted(seen), sorted(ensemble.components()))
+        self.assertEqual(sorted(seen), sorted(set(ensemble.components()) - ensemble.LATE_SOURCES))  # không có nghi vấn mạnh -> không cần KNN
+
+
+def _runner(calls, cheat=True):
+    def run_model(key, frame, conf, include_image=True, imgsz=None, iou=None, state=None):
+        calls.append((key, imgsz))
+        det = {'person_coco': [person(P1)], 'yolo_duyen': [{'label': 'Cheating' if cheat else 'Normal', 'confidence': 0.9, 'box': P1}],
+               'duyen': [{'label': 'Suspicious', 'confidence': None, 'box': P1}]}.get(key, [])
+        return {'details': det, 'counts': {}, 'ms': 1}
+    return run_model
+
+
+class CascadeAndGateTests(unittest.TestCase):
+    def test_knn_runs_only_when_a_strong_behavior_model_is_suspicious(self):
+        import inference
+        for cheat, expect_knn in ((True, True), (False, False)):
+            calls = []
+            with mock.patch.object(inference, 'run_model', _runner(calls, cheat)):
+                ensemble.run(np.zeros((60, 80, 3), np.uint8), include_image=False)
+            self.assertEqual('duyen' in [c[0] for c in calls], expect_knn)
+
+    def test_static_scene_reuses_result_until_stale_or_motion(self):
+        import inference
+        calls, still = [], np.full((60, 80, 3), 90, np.uint8)
+        clock = [0.0]
+        state = {}
+        with mock.patch.object(inference, 'run_model', _runner(calls)), mock.patch.object(ensemble, '_now', lambda: clock[0]):
+            first = ensemble.run(still, include_image=False, state=state)
+            n = len(calls)
+            second = ensemble.run(still.copy(), include_image=False, state=state)
+            self.assertEqual((first['result_reused'], second['result_reused'], len(calls)), (False, True, n))
+            self.assertEqual(second['counts'], first['counts'])
+            moved = still.copy(); moved[10:40, 10:40] = 255          # có vật thể/chuyển động
+            clock[0] = 0.3
+            self.assertFalse(ensemble.run(moved, include_image=False, state=state)['result_reused'])
+            clock[0] = 5.0                                              # quá hạn MAX_STALE_S: bắt buộc suy luận lại
+            self.assertFalse(ensemble.run(moved.copy(), include_image=False, state=state)['result_reused'])
+
+    def test_small_frames_are_not_upscaled(self):
+        self.assertEqual(ensemble._fit_imgsz(np.zeros((480, 640, 3), np.uint8), 800), 640)
+        self.assertEqual(ensemble._fit_imgsz(np.zeros((720, 1280, 3), np.uint8), 800), 800)
+        self.assertEqual(ensemble._fit_imgsz(np.zeros((500, 700, 3), np.uint8), 960), 800)

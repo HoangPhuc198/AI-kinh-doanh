@@ -221,63 +221,44 @@ def components():
     return ['person_coco', *BEHAVIOR_SOURCES]
 
 
-BEHAVIOR_EVERY = 2        # mô hình hành vi chạy mỗi N khung của một phiên; khung còn lại dùng lại kết quả gần nhất (hành vi đổi chậm)
+BEHAVIOR_EVERY = 2        # mô hình hành vi chạy mỗi N lần suy luận thật của một phiên; lần còn lại dùng lại kết quả gần nhất
 THREADS_PARALLEL = 3      # đo trên Ryzen 5 4600H: 4 mô hình song song nhanh nhất ở 2-3 luồng/mô hình (6 luồng: 1285 ms, 3 luồng: 759 ms)
 THREADS_SOLO = 6
+LATE_SOURCES = {'duyen'}  # KNN (~300 ms) chỉ chạy khi một mô hình hành vi mạnh đã nghi vấn: theo `decide`, KNN không ảnh hưởng nhãn khi chưa có nguồn mạnh
+# Cổng chuyển động: cảnh gần như không đổi thì dùng lại kết quả (thí sinh ngồi yên là trường hợp phổ biến). Luôn suy luận lại sau MAX_STALE_S.
+MOTION_MEAN = 3.0         # độ lệch xám trung bình (0-255) trên ảnh 64x48
+MOTION_PIXEL, MOTION_AREA = 25, 0.004  # hoặc >0.4% điểm ảnh đổi hơn 25 mức xám (vật nhỏ như điện thoại/bàn tay xuất hiện)
+MAX_STALE_S = 1.0
+_now = time.monotonic
 _POOL = ThreadPoolExecutor(max_workers=4, thread_name_prefix='ensemble')
 
 
-def run(frame, include_image=True, imgsz=None, state=None):
-    """Chạy các mô hình thành phần (song song) trên một khung rồi hợp nhất. Cùng định dạng với `inference.run_model`.
+def _signature(frame):
+    small = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (64, 48), interpolation=cv2.INTER_AREA)
+    return cv2.GaussianBlur(small, (3, 3), 0)
 
-    `state` (dict, mỗi phiên một cái) bật lịch bỏ qua khung: mô hình hành vi chỉ chạy mỗi BEHAVIOR_EVERY khung.
-    Không truyền `state` (ví dụ tải ảnh/video lên) thì chạy đủ mọi mô hình ở mọi khung.
-    """
-    import inference  # nhập muộn để tránh vòng import
-    import runtime
-    started = time.perf_counter()
-    timings, errors = {}, {}
-    if state is None:
-        fresh = True
-    else:
-        state['n'] = state.get('n', -1) + 1
-        fresh = state['n'] % BEHAVIOR_EVERY == 0 or 'sources' not in state
-    runtime.set_threads(THREADS_PARALLEL if fresh else THREADS_SOLO)
 
-    def call(key, conf, size):
-        return inference.run_model(key, frame, conf, include_image=False, imgsz=size)
-    futs = {'person_coco': _POOL.submit(call, 'person_coco', 0.25, imgsz or inference.ENSEMBLE_IMGSZ)}
-    if fresh:
-        for key, (_, conf, _, _) in BEHAVIOR_SOURCES.items():
-            futs[key] = _POOL.submit(call, key, conf, None)
-    sources = {}
-    for key, fut in futs.items():
-        try:
-            r = fut.result()
-        except Exception as exc:
-            if key == 'person_coco':
-                raise  # neo người là bắt buộc
-            errors[key] = str(exc)[:200]  # một nguồn hành vi lỗi không làm hỏng cả khung; ghi nhận để hiển thị trung thực
-            continue
-        timings[key] = r['ms']
-        if key == 'person_coco':
-            anchor = r
-        else:
-            sources[key] = r['details']
-    if state is not None:
-        if fresh:
-            state['sources'] = sources
-        else:
-            sources = state['sources']
-    fused = fuse(anchor['details'], sources)
+def _moved(prev, cur):
+    d = cv2.absdiff(prev, cur)
+    return float(d.mean()) > MOTION_MEAN or float((d > MOTION_PIXEL).mean()) > MOTION_AREA
+
+
+def _fit_imgsz(frame, requested, allowed=(640, 800, 960, 1280)):
+    """Không phóng to khung nhỏ hơn imgsz yêu cầu (phí công mà không thêm chi tiết)."""
+    longest = max(frame.shape[:2])
+    cap = next((a for a in allowed if a >= longest), allowed[-1])
+    return min(requested, cap)
+
+
+def _pack(frame, fused, ms, timings, errors, reused_behavior, reused_result, include_image):
     details = [{'label': p['label'], 'confidence': p['confidence'], 'box': p['box'], 'score': p['score'], 'person_conf': p['person_conf'],
                 'votes': p['votes'], 'evidence': p['evidence']} for p in fused['people']]
     details += [{'label': 'cell phone', 'confidence': ph['confidence'], 'box': ph['box']} for ph in fused['phones']]
     counts = {}
     for d in details:
         counts[d['label']] = counts.get(d['label'], 0) + 1
-    out = {'details': details, 'counts': counts, 'ms': round((time.perf_counter() - started) * 1000), 'timings': timings, 'errors': errors,
-           'behavior_reused': not fresh}
+    out = {'details': details, 'counts': counts, 'ms': ms, 'timings': timings, 'errors': errors,
+           'behavior_reused': reused_behavior, 'result_reused': reused_result}
     if include_image:
         ok, enc = cv2.imencode('.jpg', _draw(frame, fused['people'], fused['phones']), [cv2.IMWRITE_JPEG_QUALITY, 80])
         if not ok:
@@ -285,3 +266,70 @@ def run(frame, include_image=True, imgsz=None, state=None):
         import base64
         out['image'] = base64.b64encode(enc).decode()
     return out
+
+
+def _needs_knn(fused):
+    return any(max(p['votes'].get(k, 0.0) for k in BEHAVIOR_STRONG) >= AGREE_MIN_EVIDENCE for p in fused['people'])
+
+
+def run(frame, include_image=True, imgsz=None, state=None):
+    """Chạy các mô hình thành phần (song song) trên một khung rồi hợp nhất. Cùng định dạng với `inference.run_model`.
+
+    `state` (dict, mỗi phiên một cái) bật 3 tối ưu: cổng chuyển động (cảnh đứng yên -> dùng lại kết quả), mô hình hành vi chỉ
+    chạy mỗi BEHAVIOR_EVERY lần suy luận, và KNN chỉ chạy khi cần. Không truyền `state` (tải ảnh/video) thì chạy đủ mọi mô hình
+    thành phần cần thiết ở mọi khung.
+    """
+    import inference  # nhập muộn để tránh vòng import
+    import runtime
+    started = time.perf_counter()
+    sig = None
+    if state is not None:
+        sig = _signature(frame)
+        last = state.get('fused')
+        if last is not None and _now() - state['t'] < MAX_STALE_S and not _moved(state['sig'], sig):
+            return _pack(frame, last, round((time.perf_counter() - started) * 1000), {}, {}, True, True, include_image)
+        state['runs'] = state.get('runs', -1) + 1
+        fresh = state['runs'] % BEHAVIOR_EVERY == 0 or 'sources' not in state
+    else:
+        fresh = True
+    timings, errors = {}, {}
+    runtime.set_threads(THREADS_PARALLEL if fresh else THREADS_SOLO)
+
+    def call(key, conf, size):
+        return inference.run_model(key, frame, conf, include_image=False, imgsz=size)
+    futs = {'person_coco': _POOL.submit(call, 'person_coco', 0.25, _fit_imgsz(frame, imgsz or inference.ENSEMBLE_IMGSZ))}
+    early = [k for k in BEHAVIOR_SOURCES if k not in LATE_SOURCES]
+    if fresh:
+        for key in early:
+            futs[key] = _POOL.submit(call, key, BEHAVIOR_SOURCES[key][1], None)
+
+    def gather(fs):
+        out = {}
+        for key, fut in fs.items():
+            try:
+                r = fut.result()
+            except Exception as exc:
+                if key == 'person_coco':
+                    raise  # neo người là bắt buộc
+                errors[key] = str(exc)[:200]  # một nguồn hành vi lỗi không làm hỏng cả khung; ghi nhận để hiển thị trung thực
+                continue
+            timings[key] = r['ms']
+            out[key] = r
+        return out
+    got = gather(futs)
+    anchor = got['person_coco']
+    sources = {k: v['details'] for k, v in got.items() if k != 'person_coco'}
+    if fresh:
+        fused = fuse(anchor['details'], sources)
+        if _needs_knn(fused):
+            runtime.set_threads(THREADS_SOLO)
+            for key in LATE_SOURCES:
+                sources.update({k: v['details'] for k, v in gather({key: _POOL.submit(call, key, BEHAVIOR_SOURCES[key][1], None)}).items()})
+        if state is not None:
+            state['sources'] = sources
+    else:
+        sources = state['sources']
+    fused = fuse(anchor['details'], sources)
+    if state is not None:
+        state.update(fused=fused, sig=sig, t=_now())
+    return _pack(frame, fused, round((time.perf_counter() - started) * 1000), timings, errors, not fresh, False, include_image)
