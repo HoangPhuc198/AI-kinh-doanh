@@ -225,6 +225,156 @@
         font-size: 13px;
         margin-bottom: 12px;
       }
+      /* ----- bảng trạng thái lớn (dễ đọc khi quay demo) ----- */
+      .banner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+        background: #e9eeec;
+        color: #4b625d;
+        border: 2px solid #d3dcd8;
+        transition: background 0.2s, border-color 0.2s;
+      }
+      .banner .ico {
+        font-size: 34px;
+        line-height: 1;
+      }
+      .banner .ttl {
+        font-size: clamp(22px, 2.6vw, 32px);
+        font-weight: 900;
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+      }
+      .banner .sub {
+        font-size: 14px;
+        margin-top: 4px;
+        font-weight: 600;
+      }
+      .banner.ok {
+        background: #e4f7ec;
+        border-color: #3fbf86;
+        color: #0f6a47;
+      }
+      .banner.warn {
+        background: #fff3d6;
+        border-color: #f0a82a;
+        color: #8a5a00;
+      }
+      .banner.bad {
+        background: #ffe3e1;
+        border-color: #e5483f;
+        color: #a6231b;
+        animation: pulse 1s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        50% {
+          box-shadow: 0 0 0 8px #e5483f33;
+        }
+      }
+      .stage.warn {
+        outline: 5px solid #f0a82a;
+        outline-offset: -5px;
+      }
+      .stage.bad {
+        outline: 6px solid #e5483f;
+        outline-offset: -6px;
+      }
+      /* ----- danh sách từng người ----- */
+      .person {
+        display: grid;
+        gap: 5px;
+        border: 1px solid #e0e9e5;
+        border-left: 6px solid #3fbf86;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        background: #fbfdfc;
+      }
+      .person.warn {
+        border-left-color: #f0a82a;
+        background: #fffaf0;
+      }
+      .person.bad {
+        border-left-color: #e5483f;
+        background: #fff4f3;
+      }
+      .person .who {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-weight: 800;
+        font-size: 14px;
+      }
+      .person .tag {
+        font-weight: 800;
+      }
+      .person.ok .tag {
+        color: #138a5d;
+      }
+      .person.warn .tag {
+        color: #b87500;
+      }
+      .person.bad .tag {
+        color: #c8362d;
+      }
+      .person .why {
+        color: #5b6f6a;
+      }
+      .person .bar {
+        height: 5px;
+        border-radius: 3px;
+        background: #e6eeea;
+        overflow: hidden;
+      }
+      .person .bar i {
+        display: block;
+        height: 100%;
+        background: #f0a82a;
+      }
+      .person.bad .bar i {
+        background: #e5483f;
+      }
+      .hint {
+        font-size: 12px;
+        color: #78908a;
+        margin: -4px 0 10px;
+      }
+      .timeline {
+        max-height: 190px;
+        overflow: auto;
+        display: grid;
+        gap: 4px;
+        font-size: 12.5px;
+        margin-bottom: 14px;
+      }
+      .timeline div {
+        display: flex;
+        gap: 8px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: #f3f8f5;
+      }
+      .timeline .t {
+        color: #78908a;
+        font-variant-numeric: tabular-nums;
+        min-width: 42px;
+      }
+      .timeline .bad {
+        background: #ffe9e7;
+        color: #a6231b;
+      }
+      .timeline .warn {
+        background: #fff3d6;
+        color: #8a5a00;
+      }
+      .timeline .ok {
+        background: #e8f6ee;
+        color: #0f6a47;
+      }
       @media (max-width: 900px) {
         .layout {
           grid-template-columns: 1fr;
@@ -244,13 +394,15 @@
       <p>Webcam chỉ được bật khi bạn bấm <b>Bật webcam</b>. Hình ảnh được xử lý trên máy này, không ghi hình và không lưu ảnh.</p>
       <div class="layout">
         <section class="card">
-          <div class="stage"><video id="cam" autoplay muted playsinline></video><canvas id="overlay" aria-hidden="true"></canvas></div>
+          <div id="banner" class="banner" role="status" aria-live="polite"><div class="ico" id="bnIco">◌</div><div><div class="ttl" id="bnTtl">Chưa giám sát</div><div class="sub" id="bnSub">Bật webcam rồi bấm “Bắt đầu giám sát”.</div></div></div>
+          <div class="stage" id="stage"><video id="cam" autoplay muted playsinline></video><canvas id="overlay" aria-hidden="true"></canvas></div>
           <div class="controls"><button id="btnCam" class="primary">Bật webcam</button><button id="btnStart" disabled>Bắt đầu giám sát</button><button id="btnPause" disabled>Tạm dừng</button><button id="btnResume" disabled>Tiếp tục</button><button id="btnStop" class="danger" disabled>Dừng giám sát</button></div>
           <div class="opts">
             <label
               >Mô hình
               <select id="model"></select></label
-            ><label>Ngưỡng <b id="confv">0.50</b> <input id="conf" type="range" min="0" max="1" step="0.01" value="0.5" /></label
+            ><label id="confLabel" title="Mô hình đơn lẻ: ngưỡng tin cậy phát hiện. ExamVision Ensemble: ngưỡng bằng chứng hành vi (mỗi mô hình phải chắc ít nhất mức này mới tính là nghi; cao = ít báo nhầm)."><span id="confName">Ngưỡng</span> <b id="confv">0.50</b> <input id="conf" type="range" min="0" max="1" step="0.01" value="0.5" /></label
+            ><label title="Phát tiếng bíp khi có người chuyển sang Nghi ngờ hoặc Gian lận"><input id="beep" type="checkbox" checked /> Âm báo</label
             ><label
               >FPS tối đa
               <select id="fpsCap">
@@ -283,8 +435,13 @@
             >
           </div>
           <div id="calnote" class="msg" hidden>Mô hình này dùng ngưỡng đã hiệu chỉnh sẵn (không chỉnh bằng thanh trượt).</div>
+          <div id="thr" class="opts" hidden style="display:block">
+            <label>Độ nhạy <b id="sensv">Cân bằng</b> <input id="sens" type="range" min="0" max="1" step="0.05" value="0.5" style="width:280px" /></label>
+            <div><small>← Ít báo nhầm &nbsp;·&nbsp; Ít bỏ sót →</small></div>
+            <details style="margin-top:8px"><summary>Nâng cao (không bắt buộc)</summary><div id="thrBody"></div></details>
+          </div>
           <div id="msg" class="msg" role="status">Chưa bật webcam.</div>
-          <div class="notice">Cảnh báo chỉ là <b>tín hiệu nghi vấn cần giám thị xem xét</b>, không phải kết luận gian lận và không dùng để xử phạt. Hệ thống không nhận diện danh tính, không thu âm. Chưa hỗ trợ phát hiện hướng đầu/ánh nhìn vì chưa có mô hình được kiểm chứng.</div>
+          <div class="notice">Kết quả chỉ là <b>tín hiệu nghi vấn cần giám thị xem xét</b>, không phải kết luận cuối cùng và không dùng để xử phạt. Hệ thống không nhận diện danh tính, không thu âm. Hệ thống dựa vào quay/nghiêng đầu, tư thế, điện thoại gần người và hai người quay vào nhau; chưa nhận ra việc đưa/chép bài, và những cái liếc rất ngắn có thể bị bỏ sót.</div>
         </section>
         <aside class="card">
           <h2>Trạng thái</h2>
@@ -297,7 +454,12 @@
             <div class="stat">Khung đã xử lý<b id="stFrames">0</b></div>
           </div>
           <div id="flash" class="flash" hidden></div>
-          <h2>Lịch sử cảnh báo trong phiên (<span id="alertCount">0</span>)</h2>
+          <h2>Từng người trong khung</h2>
+          <div id="verdict"><div class="stat">Chưa có</div></div>
+          <h2>Diễn biến trong phiên</h2>
+          <div id="timeline" class="timeline"><div><span class="t">—</span>Chưa có thay đổi.</div></div>
+          <h2>Cảnh báo cần xem xét (<span id="alertCount">0</span>)</h2>
+          <p class="hint">Danh sách để giám thị xem lại sau và đánh dấu đúng/sai. Không thay thế nhãn từng người ở trên.</p>
           <div id="alerts" class="alerts"><p>Chưa có cảnh báo.</p></div>
         </aside>
       </div>
@@ -305,7 +467,7 @@
     <script>
       const $ = (id) => document.getElementById(id);
       const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-      const TYPES = { no_person: "Không thấy người", multiple_people: "Nhiều người", phone: "Điện thoại", suspicious_label: "Nhãn hành vi nghi vấn" };
+      const TYPES = { no_person: "Không thấy người", multiple_people: "Nhiều người", phone: "Điện thoại", suspicious_label: "Nhãn hành vi nghi vấn", cheating: "KẾT LUẬN: gian lận" };
       const SEV = { low: "Thấp", medium: "Trung bình", high: "Cao" };
       const STATUS = { needs_review: "Cần xem xét", reviewed: "Đã xem xét", dismissed: "Bỏ qua (cảnh báo sai)" };
       let stream = null,
@@ -332,7 +494,7 @@
         $("btnResume").disabled = !(act && paused);
         $("btnStop").disabled = !act;
         $("model").disabled = act;
-        $("conf").disabled = act || calibrated.includes($("model").value);
+        $("conf").disabled = $("model").value === "ensemble" ? false : act || calibrated.includes($("model").value);
         $("mode").disabled = act;
         $("imgsz").disabled = act;
         $("stCam").textContent = cam ? "Đang bật" : "Tắt";
@@ -358,13 +520,63 @@
         })
         .catch(() => msg("Không kết nối được máy chủ.", true));
       let calibrated = [];
+      const THR = [
+        ["person_conf", "Ngưỡng phát hiện người", 0.1, 0.9, 0.01, "thấp = thấy người xa hơn nhưng dễ thừa người"],
+        ["phone_conf", "Ngưỡng điện thoại", 0.1, 0.9, 0.01, "thấp = bắt nhiều điện thoại hơn, dễ báo nhầm"],
+        ["evidence_conf", "Ngưỡng bằng chứng hành vi", 0.2, 0.95, 0.01, "mỗi mô hình phải chắc ít nhất mức này mới tính là nghi"],
+        ["suspect_score", "Ngưỡng nghi ngờ", 0.02, 0.9, 0.01, "thấp = nhạy hơn (bắt sớm, nhiều nghi ngờ hơn)"],
+        ["cheat_score", "Ngưỡng kết luận gian lận", 0.1, 1, 0.01, "tỉ lệ thời gian trong cửa sổ 8 giây có nhiều nguồn đồng thuận"],
+        ["min_seconds", "Thời gian tối thiểu để kết luận (giây)", 0, 30, 0.5, "tín hiệu phải kéo dài ngần này mới kết luận gian lận"],
+        ["suspect_seconds", "Bằng chứng liên tục bao lâu thì Nghi ngờ (giây)", 0.3, 10, 0.1, "thấp = bắt cả cái liếc ngắn, dễ báo nhầm hơn"],
+        ["recover_seconds", "Về bình thường sau (giây)", 0.5, 10, 0.5, "hết bằng chứng ngần này giây thì trở lại Bình thường"],
+      ];
+      const PRESETS = {
+        sens: { person_conf: 0.3, phone_conf: 0.25, evidence_conf: 0.4, suspect_score: 0.1, cheat_score: 0.35, min_seconds: 1, suspect_seconds: 0.6, recover_seconds: 1 },
+        bal: { person_conf: 0.35, phone_conf: 0.35, evidence_conf: 0.55, suspect_score: 0.15, cheat_score: 0.45, min_seconds: 1.5, suspect_seconds: 1, recover_seconds: 1 },
+        strict: { person_conf: 0.45, phone_conf: 0.5, evidence_conf: 0.65, suspect_score: 0.25, cheat_score: 0.6, min_seconds: 3, suspect_seconds: 1.5, recover_seconds: 1 },
+      };
+      $("thrBody").innerHTML = THR.map(([k, n, lo, hi, st, tip]) => `<label style="display:block;margin:6px 0" title="${esc(tip)}">${esc(n)} <b id="tv_${k}"></b> <input data-thr="${k}" type="range" min="${lo}" max="${hi}" step="${st}" style="width:100%" /><small>${esc(tip)}</small></label>`).join("");
+      const thrValues = () => Object.fromEntries([...document.querySelectorAll("[data-thr]")].map((e) => [e.dataset.thr, Number(e.value)]));
+      const thrSet = (v) => { document.querySelectorAll("[data-thr]").forEach((e) => { e.value = v[e.dataset.thr]; $("tv_" + e.dataset.thr).textContent = Number(e.value).toFixed(2); }); syncConf(); };
+      let thrTimer = null;
+      const thrPush = () => {
+        clearTimeout(thrTimer);
+        if (!session) return;
+        thrTimer = setTimeout(() => api("/api/live/control", { session, action: "settings", settings: thrValues() }), 300);
+      };
+      document.querySelectorAll("[data-thr]").forEach((e) => (e.oninput = () => { $("tv_" + e.dataset.thr).textContent = Number(e.value).toFixed(2); syncConf(); thrPush(); }));
+      const lerp = (a, b, t) => Object.fromEntries(Object.keys(a).map((k) => [k, Math.round((a[k] + (b[k] - a[k]) * t) * 100) / 100]));
+      const sensValues = (s) => (s <= 0.5 ? lerp(PRESETS.strict, PRESETS.bal, s * 2) : lerp(PRESETS.bal, PRESETS.sens, (s - 0.5) * 2));
+      const sensName = (s) => (s < 0.35 ? "Chặt (ít báo nhầm)" : s > 0.65 ? "Nhạy (ít bỏ sót)" : "Cân bằng");
+      $("sens").oninput = (e) => { const v = Number(e.target.value); $("sensv").textContent = sensName(v); thrSet(sensValues(v)); thrPush(); };
+      thrSet(PRESETS.bal);
       const syncCal = () => {
-        const c = calibrated.includes($("model").value);
-        $("conf").disabled = c || !!session;
+        $("thr").hidden = $("model").value !== "ensemble";
+        const ens = $("model").value === "ensemble", c = calibrated.includes($("model").value) && !ens;
+        $("conf").disabled = c || (!!session && !ens);  // Ensemble: chỉnh được cả khi đang chạy
         $("calnote").hidden = !c;
+        $("confName").textContent = ens ? "Ngưỡng bằng chứng" : "Ngưỡng";
+        $("conf").min = ens ? 0.2 : 0;
+        $("conf").max = ens ? 0.95 : 1;
+        if (ens) syncConf();
+        else { $("conf").value = 0.5; $("confv").textContent = "0.50"; }
       };
       $("model").onchange = syncCal;
-      $("conf").oninput = (e) => ($("confv").textContent = Number(e.target.value).toFixed(2));
+      function syncConf() {  // thanh "Ngưỡng" của Ensemble = ngưỡng bằng chứng trong mục Nâng cao
+        if ($("model").value !== "ensemble") return;
+        const e = document.querySelector('[data-thr="evidence_conf"]');
+        $("conf").value = e.value;
+        $("confv").textContent = Number(e.value).toFixed(2);
+      }
+      $("conf").oninput = (e) => {
+        $("confv").textContent = Number(e.target.value).toFixed(2);
+        if ($("model").value === "ensemble") {
+          const t = document.querySelector('[data-thr="evidence_conf"]');
+          t.value = e.target.value;
+          $("tv_evidence_conf").textContent = Number(t.value).toFixed(2);
+          thrPush();
+        }
+      };
       $("btnCam").onclick = async () => {
         if (!navigator.mediaDevices?.getUserMedia) {
           msg("Trình duyệt không hỗ trợ webcam hoặc trang không chạy ở localhost/HTTPS.", true);
@@ -405,7 +617,7 @@
         $("btnStart").disabled = true;
         $("stAI").textContent = "Đang tải…";
         msg("Đang tải mô hình AI (lần đầu có thể mất vài chục giây)…");
-        const r = await api("/api/live/start", { model: $("model").value, confidence: $("conf").value, mode: $("mode").value, imgsz: $("imgsz").value ? Number($("imgsz").value) : null });
+        const r = await api("/api/live/start", { model: $("model").value, confidence: $("conf").value, mode: $("mode").value, imgsz: $("imgsz").value ? Number($("imgsz").value) : null, settings: thrValues() });
         if (!r.ok) {
           $("stAI").textContent = "Lỗi";
           msg(r.json.error || "Không bắt đầu được phiên.", true);
@@ -415,6 +627,10 @@
         session = r.json.session;
         alerts = [];
         renderAlerts();
+        resetVerdictUI();
+        sessionT0 = performance.now();
+        unlockAudio();
+        setBanner("", "⏳", "Đang khởi động…", "Chờ khung hình đầu tiên.");
         running = true;
         paused = false;
         fpsEma = 0;
@@ -463,21 +679,139 @@
               continue;
             }
             const j = r.json;
-            lastDetails = j.details;
-            draw();
-            $("stMs").textContent = j.ms + " ms";
-            $("stFrames").textContent = j.frames;
-            const dt = (performance.now() - t0) / 1000;
-            fpsEma = fpsEma ? fpsEma * 0.8 + 0.2 / dt : 1 / dt;
-            $("stFps").textContent = fpsEma.toFixed(1);
-            if (j.new_alerts.length) {
-              alerts.push(...j.new_alerts);
-              renderAlerts(j.new_alerts);
+            try {  // lỗi hiển thị không được làm dừng vòng gửi khung
+              lastDetails = j.details;
+              draw();
+              showVerdict(j.details);
+              $("stMs").textContent = j.ms + " ms";
+              $("stFrames").textContent = j.frames;
+              const dt = (performance.now() - t0) / 1000;
+              fpsEma = fpsEma ? fpsEma * 0.8 + 0.2 / dt : 1 / dt;
+              $("stFps").textContent = fpsEma.toFixed(1);
+              if (j.new_alerts.length) {
+                alerts.push(...j.new_alerts);
+                renderAlerts(j.new_alerts);
+              }
+            } catch (err) {
+              console.error("Lỗi hiển thị:", err);
             }
           }
           const wait = 1000 / Number($("fpsCap").value) - (performance.now() - t0);
           if (wait > 0) await sleep(wait);
         }
+      }
+      // ----- hiển thị kết luận: bảng lớn, từng người, diễn biến, âm báo -----
+      const RANK = { "Bình thường": 0, "Nghi ngờ": 1, "Gian lận": 2 };
+      const CLS = ["ok", "warn", "bad"];
+      const REASONS = [
+        [/quay\/nghiêng đầu/i, "Quay/nghiêng đầu"],
+        [/knn duyên/i, "Tư thế ngồi bất thường"],
+        [/hai người quay/i, "Hai người quay về phía nhau"],
+        [/điện thoại/i, "Có điện thoại gần người"],
+        [/yolo11 duyên/i, "AI nhận diện hành vi nghi vấn"],
+        [/training yolo/i, "AI nhận diện hành vi nghi vấn"],
+        [/gian lận nghi vấn/i, "AI nhận diện hành vi nghi vấn"],
+      ];
+      const reasonText = (e) => {
+        const h = REASONS.find(([re]) => re.test(e));
+        return h ? h[1] : String(e).replace(/\s*\([\d.]+\)\s*$/, "");
+      };
+      const reasonsOf = (d) => [...new Set((d.evidence || []).map(reasonText))];
+      let tracks = new Map(),
+        sessionT0 = 0,
+        lastBeep = 0,
+        actx = null;
+      function setBanner(cls, ico, ttl, sub) {
+        $("banner").className = "banner " + cls;
+        $("stage").className = "stage " + (cls === "bad" || cls === "warn" ? cls : "");
+        $("bnIco").textContent = ico;
+        $("bnTtl").textContent = ttl;
+        $("bnSub").textContent = sub || "";
+      }
+      const idleBanner = () => setBanner("", "◌", "Chưa giám sát", "Bật webcam rồi bấm “Bắt đầu giám sát”.");
+      function resetVerdictUI() {
+        tracks = new Map();
+        $("verdict").innerHTML = '<div class="stat">Chưa có</div>';
+        $("timeline").innerHTML = '<div><span class="t">—</span>Chưa có thay đổi.</div>';
+        $("timeline").dataset.empty = "";
+      }
+      const mmss = (s) => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+      function logEvent(cls, text) {
+        const el = $("timeline");
+        if (el.dataset.empty !== "0") {
+          el.innerHTML = "";
+          el.dataset.empty = "0";
+        }
+        const row = document.createElement("div");
+        row.className = cls;
+        row.innerHTML = `<span class="t">${mmss((performance.now() - sessionT0) / 1000)}</span><span>${esc(text)}</span>`;
+        el.prepend(row);
+        while (el.children.length > 60) el.lastChild.remove();
+      }
+      function unlockAudio() {
+        try {
+          actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+          if (actx.state === "suspended") actx.resume();
+        } catch (e) {}
+      }
+      function beep(level) {
+        if (!$("beep").checked || !actx || performance.now() - lastBeep < 2500) return;
+        lastBeep = performance.now();
+        const tones = level >= 2 ? [880, 660, 880] : [660];
+        tones.forEach((f, i) => {
+          const o = actx.createOscillator(),
+            g = actx.createGain(),
+            t = actx.currentTime + i * 0.2;
+          o.type = "sine";
+          o.frequency.value = f;
+          g.gain.value = 0.15;
+          o.connect(g);
+          g.connect(actx.destination);
+          o.start(t);
+          o.stop(t + 0.14);
+        });
+      }
+      function showVerdict(ds) {
+        const box = $("verdict"),
+          ppl = ds.filter((d) => d.id != null);
+        if (!ppl.length) {
+          if ($("model").value !== "ensemble") {
+            setBanner("", "ℹ️", "Mô hình này chỉ phát hiện đối tượng", `Đang thấy ${ds.length} đối tượng. Muốn có kết luận từng người, chọn “ExamVision Ensemble”.`);
+            box.innerHTML = '<div class="stat">Mô hình đơn lẻ không kết luận từng người.</div>';
+          } else {
+            setBanner("", "👀", "KHÔNG THẤY NGƯỜI", "Hãy ngồi vào khung hình, đủ sáng và nhìn thấy rõ phần đầu, vai.");
+            box.innerHTML = '<div class="stat">Không thấy người nào trong khung.</div>';
+          }
+          return;
+        }
+        const rank = (d) => RANK[d.label] ?? 0,
+          top = Math.max(...ppl.map(rank)),
+          hi = ppl.filter((d) => rank(d) === top),
+          ids = hi.map((d) => "#" + d.id).join(", "),
+          why = [...new Set(hi.flatMap(reasonsOf))].slice(0, 3).join(" · ");
+        if (top === 2) setBanner("bad", "🚨", "GIAN LẬN · người " + ids, why || "Nhiều dấu hiệu nghi vấn kéo dài");
+        else if (top === 1) setBanner("warn", "⚠️", "NGHI NGỜ · người " + ids, why || "Có dấu hiệu nghi vấn");
+        else setBanner("ok", "✅", "BÌNH THƯỜNG", `${ppl.length} người trong khung, chưa thấy dấu hiệu bất thường`);
+        let esc2 = 0;
+        for (const d of ppl) {
+          const prev = tracks.get(d.id),
+            r = rank(d);
+          if ((prev === undefined && r > 0) || (prev !== undefined && prev !== r)) {
+            const rs = reasonsOf(d);
+            logEvent(CLS[r], `Người #${d.id}: ${prev === undefined ? "xuất hiện" : Object.keys(RANK)[prev]} → ${d.label}` + (r > 0 && rs.length ? " (" + rs.join(", ") + ")" : ""));
+            if (r > (prev ?? 0)) esc2 = Math.max(esc2, r);
+          }
+          tracks.set(d.id, r);
+        }
+        if (esc2) beep(esc2);
+        box.innerHTML = [...ppl]
+          .sort((a, b) => rank(b) - rank(a) || a.id - b.id)
+          .map((d) => {
+            const r = rank(d),
+              rs = reasonsOf(d);
+            return `<div class="person ${CLS[r]}"><div class="who"><span>Người #${d.id}</span><span class="tag">${r === 2 ? "GIAN LẬN" : r === 1 ? "NGHI NGỜ" : "Bình thường"}</span></div>${r > 0 && rs.length ? `<div class="why">${rs.map(esc).join(" · ")}</div>` : ""}${r > 0 && d.window_score != null ? `<div class="bar" title="mức nghi ngờ trong 8 giây gần nhất"><i style="width:${Math.round(Math.min(1, d.window_score) * 100)}%"></i></div>` : ""}</div>`;
+          })
+          .join("");
       }
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       function draw() {
@@ -498,20 +832,20 @@
         for (const d of lastDetails) {
           if (!d.box) continue;
           const [a, b, c, e] = d.box,
-            bad = /cheat|suspicious|nghi vấn/i.test(d.label),
-            warn = /chú ý/i.test(d.label),
+            bad = /cheat|gian lận/i.test(d.label),
+            warn = /chú ý|nghi ngờ|suspicious/i.test(d.label),
             col = bad ? "#ff4b48" : warn ? "#f0a82a" : "#21ec9e";
           g.strokeStyle = col;
-          g.lineWidth = 3;
+          g.lineWidth = bad ? 5 : 3;
           g.strokeRect(ox + a * vw, oy + b * vh, (c - a) * vw, (e - b) * vh);
-          const t = d.label + (d.confidence == null ? "" : " " + d.confidence.toFixed(2));
-          g.font = "bold 13px sans-serif";
-          const tw = g.measureText(t).width + 10;
-          const ty = Math.max(oy, oy + b * vh - 20);
+          const t = (d.id != null ? "#" + d.id + " " + (bad ? d.label.toUpperCase() : d.label) : d.label) + (d.confidence == null ? "" : " " + d.confidence.toFixed(2));
+          g.font = "bold 15px sans-serif";
+          const tw = g.measureText(t).width + 12;
+          const ty = Math.max(oy, oy + b * vh - 24);
           g.fillStyle = col;
-          g.fillRect(ox + a * vw, ty, tw, 20);
-          g.fillStyle = "#102a24";
-          g.fillText(t, ox + a * vw + 5, ty + 14);
+          g.fillRect(ox + a * vw, ty, tw, 24);
+          g.fillStyle = bad ? "#ffffff" : "#102a24";
+          g.fillText(t, ox + a * vw + 6, ty + 17);
         }
       }
       function renderAlerts(fresh) {
@@ -551,6 +885,7 @@
         paused = true;
         gen++;
         await api("/api/live/control", { session, action: "pause" });
+        setBanner("", "⏸", "Tạm dừng", "AI không xử lý cho tới khi bấm Tiếp tục.");
         msg("Đã tạm dừng (webcam vẫn hiển thị, AI không xử lý).");
         ui();
       };
@@ -561,6 +896,7 @@
           return;
         }
         paused = false;
+        setBanner("", "⏳", "Đang giám sát…", "Chờ khung hình tiếp theo.");
         msg("Đang giám sát.");
         ui();
         loop(++gen);
@@ -579,6 +915,8 @@
         if (releaseCam) releaseCamera();
         lastDetails = [];
         clearOverlay();
+        idleBanner();
+        $("verdict").innerHTML = '<div class="stat">Chưa có</div>';
         $("stFps").textContent = "—";
         $("stMs").textContent = "—";
         ui();
