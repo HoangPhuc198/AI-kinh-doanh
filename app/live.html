@@ -467,6 +467,7 @@
     <script>
       const $ = (id) => document.getElementById(id);
       const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const isEns = (k) => k === "ensemble" || k === "ensemble_v2"; // hai bản ensemble dùng chung định dạng kết quả và bảng ngưỡng
       const TYPES = { no_person: "Không thấy người", multiple_people: "Nhiều người", phone: "Điện thoại", suspicious_label: "Nhãn hành vi nghi vấn", cheating: "KẾT LUẬN: gian lận" };
       const SEV = { low: "Thấp", medium: "Trung bình", high: "Cao" };
       const STATUS = { needs_review: "Cần xem xét", reviewed: "Đã xem xét", dismissed: "Bỏ qua (cảnh báo sai)" };
@@ -494,7 +495,7 @@
         $("btnResume").disabled = !(act && paused);
         $("btnStop").disabled = !act;
         $("model").disabled = act;
-        $("conf").disabled = $("model").value === "ensemble" ? false : act || calibrated.includes($("model").value);
+        $("conf").disabled = isEns($("model").value) ? false : act || calibrated.includes($("model").value);
         $("mode").disabled = act;
         $("imgsz").disabled = act;
         $("stCam").textContent = cam ? "Đang bật" : "Tắt";
@@ -551,8 +552,8 @@
       $("sens").oninput = (e) => { const v = Number(e.target.value); $("sensv").textContent = sensName(v); thrSet(sensValues(v)); thrPush(); };
       thrSet(PRESETS.bal);
       const syncCal = () => {
-        $("thr").hidden = $("model").value !== "ensemble";
-        const ens = $("model").value === "ensemble", c = calibrated.includes($("model").value) && !ens;
+        $("thr").hidden = !isEns($("model").value);
+        const ens = isEns($("model").value), c = calibrated.includes($("model").value) && !ens;
         $("conf").disabled = c || (!!session && !ens);  // Ensemble: chỉnh được cả khi đang chạy
         $("calnote").hidden = !c;
         $("confName").textContent = ens ? "Ngưỡng bằng chứng" : "Ngưỡng";
@@ -563,14 +564,14 @@
       };
       $("model").onchange = syncCal;
       function syncConf() {  // thanh "Ngưỡng" của Ensemble = ngưỡng bằng chứng trong mục Nâng cao
-        if ($("model").value !== "ensemble") return;
+        if (!isEns($("model").value)) return;
         const e = document.querySelector('[data-thr="evidence_conf"]');
         $("conf").value = e.value;
         $("confv").textContent = Number(e.value).toFixed(2);
       }
       $("conf").oninput = (e) => {
         $("confv").textContent = Number(e.target.value).toFixed(2);
-        if ($("model").value === "ensemble") {
+        if (isEns($("model").value)) {
           const t = document.querySelector('[data-thr="evidence_conf"]');
           t.value = e.target.value;
           $("tv_evidence_conf").textContent = Number(t.value).toFixed(2);
@@ -775,7 +776,7 @@
         const box = $("verdict"),
           ppl = ds.filter((d) => d.id != null);
         if (!ppl.length) {
-          if ($("model").value !== "ensemble") {
+          if (!isEns($("model").value)) {
             setBanner("", "ℹ️", "Mô hình này chỉ phát hiện đối tượng", `Đang thấy ${ds.length} đối tượng. Muốn có kết luận từng người, chọn “ExamVision Ensemble”.`);
             box.innerHTML = '<div class="stat">Mô hình đơn lẻ không kết luận từng người.</div>';
           } else {

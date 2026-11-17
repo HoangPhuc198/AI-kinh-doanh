@@ -5,8 +5,9 @@ from urllib.parse import urlparse, parse_qs
 import cv2
 import numpy as np
 import runtime
-from inference import ALLOWED_IMGSZ, MODELS, PROJECT, required_files, run_model, warm_model
+from inference import ALLOWED_IMGSZ, ENSEMBLES, MODELS, PROJECT, required_files, run_model, warm_model
 from live.alerts import CALIBRATION, display_filter, extract_signals
+from judge import Settings
 from live.session import SessionManager, SessionBusy, SessionNotFound
 
 ROOT = Path(__file__).resolve().parent
@@ -38,11 +39,11 @@ def report_data():
             'yolo_duyen_dataset': read_json(PROJECT/'reports/yolo11_duyen/dataset_summary.json'),
             'snapshots': snapshots}
 
-LIVE_MODELS = ('ensemble', 'person_phone', 'person_coco', 'yolo_duyen', 'training', 'gianlan', 'paper', 'duyen')
+LIVE_MODELS = ('ensemble', 'ensemble_v2', 'person_phone', 'person_coco', 'yolo_duyen', 'training', 'gianlan', 'paper', 'duyen')
 
 def live_status():
     return {'torch': runtime.torch_status(), 'loaded_models': runtime.loaded_models(),
-            'models': {k: MODELS[k][0] for k in LIVE_MODELS}, 'calibrated': sorted(set(CALIBRATION) | {'ensemble'}), 'session': sessions.active()}
+            'models': {k: MODELS[k][0] for k in LIVE_MODELS}, 'calibrated': sorted(set(CALIBRATION) | set(ENSEMBLES)), 'settings_default': Settings().to_dict(), 'settings_ranges': Settings.RANGES, 'session': sessions.active()}
 
 def live_start(req):
     key = req.get('model')
@@ -54,12 +55,13 @@ def live_start(req):
     if mode not in ('single', 'room'): raise ValueError('Chế độ không hợp lệ.')
     imgsz = int(req['imgsz']) if req.get('imgsz') else None
     if imgsz is not None and imgsz not in ALLOWED_IMGSZ: raise ValueError('imgsz không hợp lệ.')
-    session = sessions.start(key, MODELS[key][0], confidence, mode, imgsz)  # 409 nếu đã có phiên khác
+    settings = Settings.from_dict(req.get('settings'))
+    session = sessions.start(key, MODELS[key][0], confidence, mode, imgsz, settings)  # 409 nếu đã có phiên khác
     try:
         warm_model(key)
     except BaseException:
         sessions.stop(session.id); raise
-    return 200, {'session': session.id, 'model': MODELS[key][0], 'supports_phone': extract_signals(key, [])['supports_phone'], 'mode': mode, 'calibrated': key in CALIBRATION or key == 'ensemble'}
+    return 200, {'session': session.id, 'model': MODELS[key][0], 'supports_phone': extract_signals(key, [])['supports_phone'], 'mode': mode, 'calibrated': key in CALIBRATION or key in ENSEMBLES, 'settings': settings.to_dict()}
 
 def live_frame(req):
     session = sessions.get(req.get('session'))
@@ -69,7 +71,7 @@ def live_frame(req):
     frame = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
     if frame is None: raise ValueError('Không giải mã được khung hình.')
     cal = CALIBRATION.get(session.model_key)
-    result = run_model(session.model_key, frame, cal['infer_conf'] if cal else session.confidence, include_image=False, imgsz=session.imgsz, **({'state': session.ens_state} if session.model_key == 'ensemble' else {}))
+    result = run_model(session.model_key, frame, cal['infer_conf'] if cal else session.confidence, include_image=False, imgsz=session.imgsz, **({'state': session.ens_state, 'cfg': session.settings} if session.model_key in ENSEMBLES else {}))
     with session.lock:
         new = session.engine.update(extract_signals(session.model_key, result['details']), session.model_name)
         session.record(new)
@@ -89,6 +91,9 @@ def live_control(req):
         with session.lock:
             session.state = 'paused' if action == 'pause' else 'running'
             session.engine.reset_streaks()
+    elif action == 'settings':
+        session.settings = Settings.from_dict({**session.settings.to_dict(), **(req.get('settings') or {})})  # chỉnh ngưỡng khi đang chạy
+        return 200, {'settings': session.settings.to_dict()}
     elif action != 'ping':
         raise ValueError('Hành động không hợp lệ.')
     return 200, {'state': session.state}
@@ -97,6 +102,21 @@ def live_review(req):
     session = sessions.get(req.get('session'))
     with session.lock:
         return 200, session.review(int(req['alert']), req.get('status'))
+
+video_streams = {}   # id luồng video (client tạo) -> state theo dõi người; giữ vài luồng gần nhất
+def video_stream(sid):
+    if sid not in video_streams:
+        while len(video_streams) >= 4: video_streams.pop(next(iter(video_streams)))
+        video_streams[sid] = {}
+    return video_streams[sid]
+
+def ens_args(key, req, cfg, timestamp, stream):
+    """Tham số riêng của ensemble: ngưỡng người dùng + trạng thái theo dõi theo luồng video (kết luận theo thời gian)."""
+    if key not in ENSEMBLES: return {}
+    args = {'cfg': cfg}
+    if req.get('stream'):
+        args['state'] = stream.setdefault('ens', {}); args['now'] = float(req.get('video_time', timestamp))
+    return args
 
 class Handler(BaseHTTPRequestHandler):
     def respond(self, status, body, typ='application/json; charset=utf-8'):
@@ -136,6 +156,7 @@ class Handler(BaseHTTPRequestHandler):
             keys=[k for k in req['models'] if k in MODELS]
             if not keys: raise ValueError('Chọn ít nhất một mô hình.')
             threshold=max(0.01,min(1.0,float(req.get("confidence",.25))))
+            cfg=Settings.from_dict(req.get('settings'))
             frames=[]
             if req.get('video'):
                 with tempfile.NamedTemporaryFile(suffix='.mp4') as f:
@@ -151,12 +172,13 @@ class Handler(BaseHTTPRequestHandler):
                 frame=cv2.imdecode(np.frombuffer(raw,dtype=np.uint8),cv2.IMREAD_COLOR)
                 if frame is not None: frames=[(0,frame)]
             if not frames: raise ValueError('Không đọc được ảnh hoặc khung hình video.')
+            stream=video_stream(str(req['stream'])[:64]) if req.get('stream') else {}
             output={}
             for key in keys:
                 try:
                     items=[]
                     for timestamp, frame in frames:
-                        item=run_model(key,frame,threshold,not req.get('no_image', False)); item['time']=timestamp; items.append(item)
+                        item=run_model(key,frame,threshold,not req.get('no_image', False),**ens_args(key,req,cfg,timestamp,stream)); item['time']=timestamp; items.append(item)
                     output[key]={'name':MODELS[key][0], 'frames':items}
                 except Exception as e:
                     import traceback; traceback.print_exc()

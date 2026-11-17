@@ -20,10 +20,10 @@ class SessionNotFound(KeyError):
 
 
 class LiveSession:
-    def __init__(self, model_key, model_name, confidence, clock=time.monotonic, mode='single', imgsz=None):
+    def __init__(self, model_key, model_name, confidence, clock=time.monotonic, mode='single', imgsz=None, settings=None):
         self.id = secrets.token_urlsafe(12)
         self.model_key, self.model_name, self.confidence = model_key, model_name, confidence
-        self.mode, self.imgsz = mode, imgsz
+        self.mode, self.imgsz, self.settings = mode, imgsz, settings
         self.ens_state: dict = {}  # lịch bỏ qua khung của ensemble (mỗi phiên một cái)
         self.engine = AlertEngine(clock=clock, mode=mode)
         self.alerts: list[dict] = []
@@ -58,12 +58,12 @@ class SessionManager:
         if s and self.clock() - s.last_seen > self.idle_timeout:
             self._current = None
 
-    def start(self, model_key, model_name, confidence, mode='single', imgsz=None) -> LiveSession:
+    def start(self, model_key, model_name, confidence, mode='single', imgsz=None, settings=None) -> LiveSession:
         with self._lock:
             self._expire()
             if self._current is not None:
                 raise SessionBusy('Đã có phiên giám sát khác đang hoạt động.')
-            self._current = LiveSession(model_key, model_name, confidence, self.clock, mode, imgsz)
+            self._current = LiveSession(model_key, model_name, confidence, self.clock, mode, imgsz, settings)
             return self._current
 
     def get(self, session_id) -> LiveSession:

@@ -17,6 +17,7 @@ Quy tắc ở đây:
 """
 from __future__ import annotations
 
+import os
 import threading
 import time
 
@@ -83,6 +84,12 @@ def torch_status() -> dict:
 def device():
     """GPU CUDA đầu tiên nếu có, ngược lại CPU."""
     return 0 if load_torch().cuda.is_available() else 'cpu'
+
+
+def use_half() -> bool:
+    """FP16 mặc định TẮT. Đo trên GTX 1650: FP16 cho kết quả SAI (yolo11m recall người 0.013 so với 0.63 ở FP32, precision
+    dao động giữa các lần chạy). Dòng GTX 16xx nổi tiếng lỗi FP16. Chỉ bật bằng EXAMVISION_HALF=1 trên GPU đã kiểm chứng."""
+    return device() != 'cpu' and os.getenv('EXAMVISION_HALF', '0') == '1'
 
 
 def get_yolo(path) -> object:

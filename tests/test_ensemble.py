@@ -7,6 +7,17 @@ from tests import _paths  # noqa: F401
 import ensemble
 from ensemble import LABEL_NORMAL, LABEL_SUSPECT, LABEL_WATCH, fuse
 
+_pose_patch = mock.patch.object(ensemble, '_pose_infer', lambda frame, conf: {'details': [], 'ms': 1})  # không nạp mô hình pose thật
+
+
+def setUpModule():
+    _pose_patch.start()
+
+
+def tearDownModule():
+    _pose_patch.stop()
+
+
 P1 = [0.10, 0.20, 0.40, 0.90]
 P2 = [0.60, 0.20, 0.90, 0.90]
 
@@ -95,7 +106,7 @@ class RunTests(unittest.TestCase):
         import inference
         with mock.patch.object(inference, 'run_model', self.fake_runner()):
             out = ensemble.run(np.zeros((120, 160, 3), np.uint8))
-        self.assertEqual(out['counts'], {LABEL_SUSPECT: 1})
+        self.assertEqual(out['counts'], {ensemble.V_SUSPECT: 1})
         self.assertIn('image', out)
         self.assertEqual(out['errors'], {})
         self.assertEqual(set(out['timings']), set(ensemble.components()))
@@ -105,7 +116,7 @@ class RunTests(unittest.TestCase):
         with mock.patch.object(inference, 'run_model', self.fake_runner(fail=('gianlan',))):
             out = ensemble.run(np.zeros((120, 160, 3), np.uint8), include_image=False)
         self.assertIn('gianlan', out['errors'])
-        self.assertEqual(out['counts'], {LABEL_SUSPECT: 1})
+        self.assertEqual(out['counts'], {ensemble.V_SUSPECT: 1})
 
 
 if __name__ == '__main__':
@@ -133,10 +144,31 @@ class WeakSourceTests(unittest.TestCase):
         self.assertEqual(fuse([person(P1), phone], src)['people'][0]['label'], LABEL_SUSPECT)
 
 
+class TrainingSupportTests(unittest.TestCase):
+    """Training YOLO là nguồn phụ: một mình không bao giờ báo, không tạo người, không làm loãng điểm khi im lặng."""
+
+    def test_training_alone_never_flags(self):
+        src = {'training': [{'label': 'Cheating', 'confidence': 0.95, 'box': P1}]}
+        self.assertEqual(fuse([person(P1)], src)['people'][0]['label'], LABEL_NORMAL)
+
+    def test_training_does_not_create_people(self):
+        src = {'training': [{'label': 'Cheating', 'confidence': 0.95, 'box': [0.6, 0.1, 0.9, 0.9]}]}
+        self.assertEqual(len(fuse([person(P1)], src)['people']), 1)
+
+    def test_training_supports_a_strong_source(self):
+        src = {'yolo_duyen': [{'label': 'Cheating', 'confidence': 0.9, 'box': P1}], 'training': [{'label': 'Cheating', 'confidence': 0.9, 'box': P1}]}
+        self.assertEqual(fuse([person(P1)], src)['people'][0]['label'], LABEL_SUSPECT)
+
+    def test_silent_training_does_not_dilute_score(self):
+        from ensemble import decide
+        votes = {'yolo_duyen': 0.9, 'pose': 0.9}
+        self.assertAlmostEqual(decide(votes)[1], decide({**votes, 'training': 0.0})[1])
+
+
 class DrawTests(unittest.TestCase):
     def test_vietnamese_labels_render_and_boxes_stay_inside_image(self):
         frame = np.full((200, 300, 3), 40, np.uint8)
-        out = ensemble._draw(frame, [{'label': LABEL_SUSPECT, 'confidence': 0.6, 'box': [0.0, 0.0, 1.0, 1.0]}], [])
+        out = ensemble._draw(frame, [{'label': ensemble.V_SUSPECT, 'confidence': 0.6, 'box': [0.0, 0.0, 1.0, 1.0]}], [])
         self.assertEqual(out.shape, frame.shape)
         self.assertFalse(np.array_equal(out, frame))
 
@@ -162,7 +194,8 @@ class SchedulingTests(unittest.TestCase):
         self.assertEqual([o['behavior_reused'] for o in outs], [False, True, False, True])
         self.assertEqual(calls.count('person_coco'), 4)          # neo người chạy mọi khung
         self.assertEqual(calls.count('yolo_duyen'), 2)           # mô hình hành vi chỉ 2/4 khung
-        self.assertTrue(all(o['counts'] == {LABEL_SUSPECT: 1} for o in outs))  # kết luận ổn định cả khung dùng lại
+        self.assertEqual(outs[0]['counts'], {ensemble.V_NORMAL: 1})  # khung đầu: chưa đủ 2 khung liên tiếp
+        self.assertTrue(all(o['counts'] == {ensemble.V_SUSPECT: 1} for o in outs[1:]))  # kết luận ổn định cả khung dùng lại
 
     def test_no_state_runs_everything_each_call(self):
         import inference
@@ -173,7 +206,7 @@ class SchedulingTests(unittest.TestCase):
             return {'details': [], 'counts': {}, 'ms': 1}
         with mock.patch.object(inference, 'run_model', run_model):
             ensemble.run(np.zeros((60, 80, 3), np.uint8), include_image=False)
-        self.assertEqual(sorted(seen), sorted(set(ensemble.components()) - ensemble.LATE_SOURCES))  # không có nghi vấn mạnh -> không cần KNN
+        self.assertEqual(sorted(seen), sorted(set(ensemble.components()) - ensemble.LATE_SOURCES - {'pose'}))  # không có nghi vấn mạnh -> không cần KNN
 
 
 def _runner(calls, cheat=True):
@@ -204,14 +237,22 @@ class CascadeAndGateTests(unittest.TestCase):
             n = len(calls)
             second = ensemble.run(still.copy(), include_image=False, state=state)
             self.assertEqual((first['result_reused'], second['result_reused'], len(calls)), (False, True, n))
-            self.assertEqual(second['counts'], first['counts'])
+            self.assertEqual(second['counts'], {ensemble.V_SUSPECT: 1})  # khung thứ 2 liên tiếp (dùng lại kết quả) đủ điều kiện Nghi ngờ
             moved = still.copy(); moved[10:40, 10:40] = 255          # có vật thể/chuyển động
             clock[0] = 0.3
             self.assertFalse(ensemble.run(moved, include_image=False, state=state)['result_reused'])
             clock[0] = 5.0                                              # quá hạn MAX_STALE_S: bắt buộc suy luận lại
             self.assertFalse(ensemble.run(moved.copy(), include_image=False, state=state)['result_reused'])
 
-    def test_small_frames_are_not_upscaled(self):
+    def test_gpu_keeps_requested_imgsz_and_defaults_to_960(self):
+        import runtime
+        with mock.patch.object(runtime, 'device', return_value=0):
+            small = np.zeros((480, 640, 3), np.uint8)
+            self.assertEqual(ensemble._fit_imgsz(small, 800), 800)
+            self.assertEqual(ensemble._fit_imgsz(small, None), ensemble.GPU_IMGSZ)
+
+    @mock.patch('runtime.device', return_value='cpu')
+    def test_small_frames_are_not_upscaled(self, _):
         self.assertEqual(ensemble._fit_imgsz(np.zeros((480, 640, 3), np.uint8), 800), 640)
         self.assertEqual(ensemble._fit_imgsz(np.zeros((720, 1280, 3), np.uint8), 800), 800)
         self.assertEqual(ensemble._fit_imgsz(np.zeros((500, 700, 3), np.uint8), 960), 800)

@@ -19,7 +19,7 @@ from datetime import datetime
 NEEDS_REVIEW, REVIEWED, DISMISSED = 'needs_review', 'reviewed', 'dismissed'
 REVIEW_STATUSES = (NEEDS_REVIEW, REVIEWED, DISMISSED)
 
-_BEHAVIOR_FLAGS = {'suspicious', 'cheating', 'cheating-behaviour', 'nghi vấn gian lận'}
+_BEHAVIOR_FLAGS = {'suspicious', 'cheating', 'cheating-behaviour', 'nghi vấn gian lận', 'nghi ngờ', 'gian lận'}
 
 # Nhãn nào của mô hình nào được coi là gì. `None` = mọi nhãn đều là một người.
 SIGNAL_LABELS = {
@@ -31,14 +31,15 @@ SIGNAL_LABELS = {
     # cho số người; 'invigilator' (giám thị) không tính là thí sinh.
     'person_coco': {'person': {'person'}, 'phone': {'cell phone'}},
     # ensemble: mỗi hộp người mang nhãn kết luận; điện thoại là hộp riêng. Ngưỡng đã nằm trong app/ensemble.py.
-    'ensemble': {'person': {'bình thường', 'cần chú ý', 'nghi vấn gian lận'}, 'phone': {'cell phone'}},
+    'ensemble': {'person': {'bình thường', 'nghi ngờ', 'gian lận'}, 'phone': {'cell phone'}},
+    'ensemble_v2': {'person': {'bình thường', 'nghi ngờ', 'gian lận'}, 'phone': {'cell phone'}},  # cùng định dạng đầu ra với ensemble
     'person_phone': {'person': {'person'}, 'phone': {'cell phone'}},
     'gianlan': {'person': {'person', 'normal', 'cheating', 'cheating-behaviour', 'submitting'},
                 'count_person': {'person'}, 'phone': {'cell-phones'}},
 }
 
 
-# Ngưỡng đã hiệu chỉnh trên tập val coco_person_phone (imgsz 960), kiểm tra trên test; xem MODEL_EVALUATION.md.
+# Ngưỡng đã hiệu chỉnh trên tập val coco_person_phone (imgsz 960), kiểm tra trên test; xem docs/reports/MODEL_EVALUATION.md.
 # Mỗi tín hiệu dùng ngưỡng riêng vì chi phí sai khác nhau:
 #   presence : "có người" (để cảnh báo KHÔNG THẤY NGƯỜI) - ngưỡng thấp => ít bỏ sót => ít báo "không thấy" nhầm
 #   count    : đếm người (để cảnh báo NHIỀU NGƯỜI) - ngưỡng cao => ít người dư => ít báo "nhiều người" nhầm
@@ -83,6 +84,8 @@ DEFAULT_RULES = (
     Rule('multiple_people', 'high', 3, 2.0, 30.0, 'Phát hiện từ 2 người trở lên trong khung hình (chế độ một thí sinh).', 1.0, ('single',)),
     Rule('phone', 'high', 2, 1.0, 30.0, 'Phát hiện vật thể được mô hình gán là điện thoại.', 1.5),
     Rule('suspicious_label', 'medium', 3, 2.0, 30.0, 'Mô hình gán nhãn hành vi nghi vấn kéo dài.', 1.5),
+    # Kết luận "Gian lận" đã qua bộ lọc thời gian của app/judge.py nên báo ngay (cooldown để không lặp).
+    Rule('cheating', 'high', 1, 0.0, 60.0, 'Hệ thống kết luận có hành vi gian lận (nhiều nguồn cùng nghi, kéo dài).', 1.0),
 )
 
 
@@ -115,10 +118,12 @@ def extract_signals(model_key: str, details: list[dict]) -> dict:
         'person_count': len(counted) if counted else len(persons),
         'phone': any(lb in phone_set for lb in labels),
         'suspicious_label': any(lb in _BEHAVIOR_FLAGS for lb in labels),
+        'cheating': 'gian lận' in labels,
         'supports_phone': bool(phone_set),
-        'evidence': next((d.get('evidence') for d in details if str(d.get('label', '')).lower() in _BEHAVIOR_FLAGS and d.get('evidence')), None),
+        'evidence': next((d.get('evidence') for d in sorted(details, key=lambda d: str(d.get('label', '')).lower() != 'gian lận')
+                          if str(d.get('label', '')).lower() in _BEHAVIOR_FLAGS and d.get('evidence')), None),
         # độ tin cậy cao nhất của các hộp chứng minh cho tín hiệu (None nếu mô hình không có confidence)
-        'conf': {'phone': best(phone_set.__contains__), 'suspicious_label': best(_BEHAVIOR_FLAGS.__contains__),
+        'conf': {'phone': best(phone_set.__contains__), 'suspicious_label': best(_BEHAVIOR_FLAGS.__contains__), 'cheating': best(lambda lb: lb == 'gian lận'),
                  'multiple_people': best(lambda lb: person_set is None or lb in person_set), 'no_person': None},
     }
 
@@ -152,6 +157,8 @@ class AlertEngine:
             return s['person_count'] >= 2
         if rule_type == 'phone':
             return s['phone']
+        if rule_type == 'cheating':
+            return s.get('cheating', False)
         return s['suspicious_label']
 
     def update(self, signals: dict, model_name: str = '') -> list[dict]:
@@ -184,7 +191,7 @@ class AlertEngine:
                     'mode': self.mode,
                     'confidence': signals.get('conf', {}).get(rule.type),
                     'frames': track.frames,
-                    'evidence': signals.get('evidence') if rule.type == 'suspicious_label' else None,
+                    'evidence': signals.get('evidence') if rule.type in ('suspicious_label', 'cheating') else None,
                     'duration_s': round(now - track.since, 1),
                     'status': NEEDS_REVIEW,
                     'note': 'Tín hiệu cần giám thị xem xét; không phải kết luận gian lận.',

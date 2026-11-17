@@ -1,5 +1,6 @@
 """Suy luận một khung hình cho mọi mô hình; dùng chung cho tải tệp và webcam."""
 import base64
+import os
 import time
 from pathlib import Path
 
@@ -17,32 +18,59 @@ MODELS = {
     'duyen': ('KNN dataset Duyên', PROJECT/'models/duyen_knn.joblib'),
     # Bộ phát hiện đối tượng tổng quát (COCO) có lớp person + cell phone; dùng cho đếm người/điện thoại.
     'person_coco': ('YOLO11n COCO', PROJECT/'models/yolo11n_coco.pt'),
-    # Fine-tune từ person_coco trên dataset MỚI coco_person_phone (COCO val2017 lọc, 1014 ảnh); xem TRAINING_REPORT.md.
+    # Fine-tune từ person_coco trên dataset MỚI coco_person_phone (COCO val2017 lọc, 1014 ảnh); xem docs/reports/TRAINING_REPORT.md.
     # Mô hình tổng hợp: gộp person_coco + yolo_duyen + gianlan + KNN Duyên (xem app/ensemble.py).
     'ensemble': ('ExamVision Ensemble', PROJECT/'models/yolo11n_coco.pt'),
+    # Bản sửa lỗi của ensemble (app/ensemble_v2.py); bản cũ giữ nguyên để quay lại.
+    'ensemble_v2': ('ExamVision Ensemble v2', PROJECT/'models/yolo11n_coco.pt'),
     'person_phone': ('YOLO11n Người+ĐT v1', PROJECT/'models/yolo11_person_phone.pt'),
 }
 POSE_KEYS = ('paper', 'duyen')
 # imgsz mặc định theo mô hình (None = mặc định Ultralytics 640). Giá trị 960 dựa trên
 # training/eval_person.py: recall người nhỏ tăng từ 0.32 (640) lên 0.45 (960) với chi phí ~2.3x thời gian.
 DEFAULT_IMGSZ = {'person_coco': 960}
-ENSEMBLE_IMGSZ = 800  # đo trên test: recall người 0.54 (800) so với 0.60 (960), nhanh hơn ~35-40%
+ENSEMBLE_IMGSZ = 800  # (CPU) đo trên test: recall người 0.54 (800) so với 0.60 (960), nhanh hơn ~35-40%
 ALLOWED_IMGSZ = (640, 800, 960, 1280)
 
 
 _device = runtime.device
+COCO_GPU_WEIGHTS = PROJECT/'models/yolo11m_coco.pt'
+
+
+def _path(key):
+    """Trọng số thực dùng. person_coco tự nâng lên YOLO11m trên GPU (đo trên test: F1 người 0.76 so với 0.63-0.69 của YOLO11n,
+    ~90 ms/khung ở 960 px trên GTX 1650); CPU hoặc thiếu tệp thì giữ YOLO11n. Đặt EXAMVISION_COCO=n để ép YOLO11n."""
+    if key == 'person_coco' and COCO_GPU_WEIGHTS.is_file() and os.getenv('EXAMVISION_COCO', 'm') != 'n':
+        try:
+            if runtime.device() != 'cpu':
+                return COCO_GPU_WEIGHTS
+        except runtime.TorchUnavailable:
+            pass
+    return MODELS[key][1]
 
 
 def _classifier_path(key):
     return str(MODELS['duyen'][1]) if key == 'duyen' else None
 
 
+ENSEMBLES = ('ensemble', 'ensemble_v2')
+
+
+def ensemble_module(key):
+    """Module của mô hình tổng hợp `key` (nhập muộn để tránh vòng import)."""
+    import ensemble
+    if key == 'ensemble_v2':
+        import ensemble_v2
+        return ensemble_v2
+    return ensemble
+
+
 def required_files(key):
     """Mọi tệp trọng số cần có để chạy mô hình `key`."""
-    if key == 'ensemble':
+    if key in ENSEMBLES:
         import ensemble
-        return sorted({p for k in ensemble.components() for p in required_files(k)})
-    files = [MODELS[key][1]]
+        return sorted({p for k in ensemble_module(key).components() if k != 'pose' for p in required_files(k)} | {ensemble.POSE_WEIGHTS})
+    files = [_path(key)]
     if key in POSE_KEYS:
         files.append(MODELS['paper'][1])
     return files
@@ -50,27 +78,28 @@ def required_files(key):
 
 def warm_model(key):
     """Nạp trước trọng số (một lần mỗi tiến trình) để khung đầu tiên không bị chậm."""
-    if key == 'ensemble':
+    if key in ENSEMBLES:
         import ensemble
-        for k in ensemble.components():
-            warm_model(k)
+        for k in ensemble_module(key).components():
+            if k != 'pose':
+                warm_model(k)
+        runtime.get_yolo(ensemble.POSE_WEIGHTS)
         return
     if key in POSE_KEYS:
         import paper_detector
         paper_detector.get_models(_classifier_path(key))
     else:
-        model = runtime.get_yolo(MODELS[key][1])
+        model = runtime.get_yolo(_path(key))
         with runtime.model_lock(key):  # khởi động các lớp bằng một lần suy luận trên ảnh đen
-            model.predict(np.zeros((480, 640, 3), np.uint8), verbose=False, device=_device(), imgsz=DEFAULT_IMGSZ.get(key, 640))
+            model.predict(np.zeros((480, 640, 3), np.uint8), verbose=False, device=_device(), half=runtime.use_half(), imgsz=DEFAULT_IMGSZ.get(key, 640))
 
 
-def run_model(key, frame, confidence, include_image=True, imgsz=None, iou=None, state=None):
+def run_model(key, frame, confidence, include_image=True, imgsz=None, iou=None, state=None, cfg=None, now=None):
     """imgsz/iou chỉ áp dụng cho mô hình YOLO detect; mô hình pose+KNN giữ cấu hình riêng."""
     if imgsz is not None and imgsz not in ALLOWED_IMGSZ:
         raise ValueError(f'imgsz phải thuộc {ALLOWED_IMGSZ}')
-    if key == 'ensemble':
-        import ensemble
-        return ensemble.run(frame, include_image=include_image, imgsz=imgsz, state=state)
+    if key in ENSEMBLES:
+        return ensemble_module(key).run(frame, include_image=include_image, imgsz=imgsz, state=state, cfg=cfg, now=now)
     started = time.perf_counter()
     with runtime.model_lock('pose' if key in POSE_KEYS else key):  # paper và duyen dùng chung một mô hình pose
         if key in POSE_KEYS:
@@ -85,9 +114,9 @@ def run_model(key, frame, confidence, include_image=True, imgsz=None, iou=None, 
                     name = d['label'].lower()
                     counts[name] = counts.get(name, 0) + 1
         else:
-            model = runtime.get_yolo(MODELS[key][1])
+            model = runtime.get_yolo(_path(key))
             kwargs = {'iou': iou} if iou else {}
-            result = model.predict(frame, conf=confidence, verbose=False, device=_device(), imgsz=imgsz or DEFAULT_IMGSZ.get(key, 640), **kwargs)[0]
+            result = model.predict(frame, conf=confidence, verbose=False, device=_device(), half=runtime.use_half(), imgsz=imgsz or DEFAULT_IMGSZ.get(key, 640), **kwargs)[0]
             rendered = result.plot() if include_image else None
             details = [{'label': str(result.names[int(b.cls.item())]), 'confidence': round(float(b.conf.item()), 3), 'box': [float(v) for v in b.xyxyn[0].tolist()]} for b in result.boxes]
             counts = {}

@@ -1,0 +1,1424 @@
+{
+ "meta": {
+  "model": "ensemble",
+  "datasets": [
+   "Cheating_Detection_v4i_yolov11",
+   "exam_cheating_v2i_yolov11",
+   "exam_malpractice_detection2_v18i_yolov11"
+  ],
+  "eval_splits": [
+   "valid",
+   "test"
+  ],
+  "bootstrap": 2000,
+  "seed": 0
+ },
+ "system": {
+  "suspect_or_above": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 103,
+    "fp": 41,
+    "fn": 1346,
+    "tn": 1523,
+    "precision": 0.715,
+    "recall": 0.071,
+    "false_alarm_rate": 0.026,
+    "f1": 0.129,
+    "youden_j": 0.045,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.612,
+      0.815
+     ],
+     "recall": [
+      0.052,
+      0.094
+     ],
+     "false_alarm_rate": [
+      0.014,
+      0.042
+     ],
+     "f1": [
+      0.097,
+      0.167
+     ],
+     "youden_j": [
+      0.025,
+      0.065
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.637,
+      0.783
+     ],
+     "recall": [
+      0.059,
+      0.085
+     ],
+     "false_alarm_rate": [
+      0.019,
+      0.035
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.39,
+     "recall": 1.59,
+     "false_alarm_rate": 1.75
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 19,
+     "fp": 3,
+     "fn": 413,
+     "tn": 92,
+     "precision": 0.864,
+     "recall": 0.044,
+     "false_alarm_rate": 0.032,
+     "f1": 0.084,
+     "youden_j": 0.012,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 18,
+     "fp": 1,
+     "fn": 47,
+     "tn": 97,
+     "precision": 0.947,
+     "recall": 0.277,
+     "false_alarm_rate": 0.01,
+     "f1": 0.429,
+     "youden_j": 0.267,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 66,
+     "fp": 37,
+     "fn": 886,
+     "tn": 1334,
+     "precision": 0.641,
+     "recall": 0.069,
+     "false_alarm_rate": 0.027,
+     "f1": 0.125,
+     "youden_j": 0.042,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 144,
+     "fp": 24,
+     "fn": 2204,
+     "tn": 2131,
+     "precision": 0.857,
+     "recall": 0.061,
+     "false_alarm_rate": 0.011,
+     "f1": 0.114,
+     "youden_j": 0.05,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 58,
+     "fp": 23,
+     "fn": 787,
+     "tn": 896,
+     "precision": 0.716,
+     "recall": 0.069,
+     "false_alarm_rate": 0.025,
+     "f1": 0.125,
+     "youden_j": 0.044,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 45,
+     "fp": 18,
+     "fn": 559,
+     "tn": 627,
+     "precision": 0.714,
+     "recall": 0.075,
+     "false_alarm_rate": 0.028,
+     "f1": 0.135,
+     "youden_j": 0.047,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  },
+  "watch_or_above": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 223,
+    "fp": 113,
+    "fn": 1226,
+    "tn": 1451,
+    "precision": 0.664,
+    "recall": 0.154,
+    "false_alarm_rate": 0.072,
+    "f1": 0.25,
+    "youden_j": 0.082,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.578,
+      0.75
+     ],
+     "recall": [
+      0.127,
+      0.184
+     ],
+     "false_alarm_rate": [
+      0.053,
+      0.1
+     ],
+     "f1": [
+      0.211,
+      0.293
+     ],
+     "youden_j": [
+      0.05,
+      0.113
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.612,
+      0.712
+     ],
+     "recall": [
+      0.136,
+      0.173
+     ],
+     "false_alarm_rate": [
+      0.06,
+      0.086
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.72,
+     "recall": 1.53,
+     "false_alarm_rate": 1.81
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 45,
+     "fp": 7,
+     "fn": 387,
+     "tn": 88,
+     "precision": 0.865,
+     "recall": 0.104,
+     "false_alarm_rate": 0.074,
+     "f1": 0.186,
+     "youden_j": 0.03,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 31,
+     "fp": 2,
+     "fn": 34,
+     "tn": 96,
+     "precision": 0.939,
+     "recall": 0.477,
+     "false_alarm_rate": 0.02,
+     "f1": 0.633,
+     "youden_j": 0.457,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 147,
+     "fp": 104,
+     "fn": 805,
+     "tn": 1267,
+     "precision": 0.586,
+     "recall": 0.154,
+     "false_alarm_rate": 0.076,
+     "f1": 0.244,
+     "youden_j": 0.079,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 351,
+     "fp": 122,
+     "fn": 1997,
+     "tn": 2033,
+     "precision": 0.742,
+     "recall": 0.149,
+     "false_alarm_rate": 0.057,
+     "f1": 0.249,
+     "youden_j": 0.093,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 125,
+     "fp": 66,
+     "fn": 720,
+     "tn": 853,
+     "precision": 0.654,
+     "recall": 0.148,
+     "false_alarm_rate": 0.072,
+     "f1": 0.241,
+     "youden_j": 0.076,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 98,
+     "fp": 47,
+     "fn": 506,
+     "tn": 598,
+     "precision": 0.676,
+     "recall": 0.162,
+     "false_alarm_rate": 0.073,
+     "f1": 0.262,
+     "youden_j": 0.089,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  }
+ },
+ "per_source": {
+  "duyen": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 241,
+    "fp": 199,
+    "fn": 1208,
+    "tn": 1365,
+    "precision": 0.548,
+    "recall": 0.166,
+    "false_alarm_rate": 0.127,
+    "f1": 0.255,
+    "youden_j": 0.039,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.47,
+      0.64
+     ],
+     "recall": [
+      0.133,
+      0.206
+     ],
+     "false_alarm_rate": [
+      0.093,
+      0.169
+     ],
+     "f1": [
+      0.212,
+      0.305
+     ],
+     "youden_j": [
+      0.005,
+      0.074
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.501,
+      0.594
+     ],
+     "recall": [
+      0.148,
+      0.186
+     ],
+     "false_alarm_rate": [
+      0.112,
+      0.145
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.83,
+     "recall": 1.91,
+     "false_alarm_rate": 2.31
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 45,
+     "fp": 11,
+     "fn": 387,
+     "tn": 84,
+     "precision": 0.804,
+     "recall": 0.104,
+     "false_alarm_rate": 0.116,
+     "f1": 0.184,
+     "youden_j": -0.012,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 15,
+     "fp": 10,
+     "fn": 50,
+     "tn": 88,
+     "precision": 0.6,
+     "recall": 0.231,
+     "false_alarm_rate": 0.102,
+     "f1": 0.333,
+     "youden_j": 0.129,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 181,
+     "fp": 178,
+     "fn": 771,
+     "tn": 1193,
+     "precision": 0.504,
+     "recall": 0.19,
+     "false_alarm_rate": 0.13,
+     "f1": 0.276,
+     "youden_j": 0.06,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 490,
+     "fp": 217,
+     "fn": 1858,
+     "tn": 1938,
+     "precision": 0.693,
+     "recall": 0.209,
+     "false_alarm_rate": 0.101,
+     "f1": 0.321,
+     "youden_j": 0.108,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 138,
+     "fp": 117,
+     "fn": 707,
+     "tn": 802,
+     "precision": 0.541,
+     "recall": 0.163,
+     "false_alarm_rate": 0.127,
+     "f1": 0.251,
+     "youden_j": 0.036,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 103,
+     "fp": 82,
+     "fn": 501,
+     "tn": 563,
+     "precision": 0.557,
+     "recall": 0.171,
+     "false_alarm_rate": 0.127,
+     "f1": 0.261,
+     "youden_j": 0.043,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  },
+  "gianlan": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 33,
+    "fp": 16,
+    "fn": 1416,
+    "tn": 1548,
+    "precision": 0.673,
+    "recall": 0.023,
+    "false_alarm_rate": 0.01,
+    "f1": 0.044,
+    "youden_j": 0.013,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.542,
+      0.825
+     ],
+     "recall": [
+      0.014,
+      0.034
+     ],
+     "false_alarm_rate": [
+      0.004,
+      0.02
+     ],
+     "f1": [
+      0.027,
+      0.065
+     ],
+     "youden_j": [
+      0.003,
+      0.023
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.534,
+      0.788
+     ],
+     "recall": [
+      0.016,
+      0.032
+     ],
+     "false_alarm_rate": [
+      0.006,
+      0.017
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.12,
+     "recall": 1.27,
+     "false_alarm_rate": 1.48
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 9,
+     "fp": 3,
+     "fn": 423,
+     "tn": 92,
+     "precision": 0.75,
+     "recall": 0.021,
+     "false_alarm_rate": 0.032,
+     "f1": 0.041,
+     "youden_j": -0.011,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 4,
+     "fp": 1,
+     "fn": 61,
+     "tn": 97,
+     "precision": 0.8,
+     "recall": 0.062,
+     "false_alarm_rate": 0.01,
+     "f1": 0.114,
+     "youden_j": 0.051,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 20,
+     "fp": 12,
+     "fn": 932,
+     "tn": 1359,
+     "precision": 0.625,
+     "recall": 0.021,
+     "false_alarm_rate": 0.009,
+     "f1": 0.041,
+     "youden_j": 0.012,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 39,
+     "fp": 11,
+     "fn": 2309,
+     "tn": 2144,
+     "precision": 0.78,
+     "recall": 0.017,
+     "false_alarm_rate": 0.005,
+     "f1": 0.033,
+     "youden_j": 0.012,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 21,
+     "fp": 11,
+     "fn": 824,
+     "tn": 908,
+     "precision": 0.656,
+     "recall": 0.025,
+     "false_alarm_rate": 0.012,
+     "f1": 0.048,
+     "youden_j": 0.013,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 12,
+     "fp": 5,
+     "fn": 592,
+     "tn": 640,
+     "precision": 0.706,
+     "recall": 0.02,
+     "false_alarm_rate": 0.008,
+     "f1": 0.039,
+     "youden_j": 0.012,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  },
+  "pair": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 17,
+    "fp": 9,
+    "fn": 1432,
+    "tn": 1555,
+    "precision": 0.654,
+    "recall": 0.012,
+    "false_alarm_rate": 0.006,
+    "f1": 0.023,
+    "youden_j": 0.006,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.52,
+      0.833
+     ],
+     "recall": [
+      0.005,
+      0.02
+     ],
+     "false_alarm_rate": [
+      0.002,
+      0.013
+     ],
+     "f1": [
+      0.01,
+      0.039
+     ],
+     "youden_j": [
+      0.001,
+      0.012
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.462,
+      0.806
+     ],
+     "recall": [
+      0.007,
+      0.019
+     ],
+     "false_alarm_rate": [
+      0.003,
+      0.011
+     ]
+    },
+    "width_ratio": {
+     "precision": 0.91,
+     "recall": 1.29,
+     "false_alarm_rate": 1.44
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 0,
+     "fp": 0,
+     "fn": 432,
+     "tn": 95,
+     "precision": null,
+     "recall": 0.0,
+     "false_alarm_rate": 0.0,
+     "f1": 0.0,
+     "youden_j": 0.0,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 2,
+     "fp": 0,
+     "fn": 63,
+     "tn": 98,
+     "precision": 1.0,
+     "recall": 0.031,
+     "false_alarm_rate": 0.0,
+     "f1": 0.06,
+     "youden_j": 0.031,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 15,
+     "fp": 9,
+     "fn": 937,
+     "tn": 1362,
+     "precision": 0.625,
+     "recall": 0.016,
+     "false_alarm_rate": 0.007,
+     "f1": 0.031,
+     "youden_j": 0.009,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 14,
+     "fp": 3,
+     "fn": 2334,
+     "tn": 2152,
+     "precision": 0.824,
+     "recall": 0.006,
+     "false_alarm_rate": 0.001,
+     "f1": 0.012,
+     "youden_j": 0.005,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 8,
+     "fp": 2,
+     "fn": 837,
+     "tn": 917,
+     "precision": 0.8,
+     "recall": 0.009,
+     "false_alarm_rate": 0.002,
+     "f1": 0.019,
+     "youden_j": 0.007,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 9,
+     "fp": 7,
+     "fn": 595,
+     "tn": 638,
+     "precision": 0.562,
+     "recall": 0.015,
+     "false_alarm_rate": 0.011,
+     "f1": 0.029,
+     "youden_j": 0.004,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  },
+  "phone": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 33,
+    "fp": 10,
+    "fn": 1416,
+    "tn": 1554,
+    "precision": 0.767,
+    "recall": 0.023,
+    "false_alarm_rate": 0.006,
+    "f1": 0.044,
+    "youden_j": 0.016,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.583,
+      0.962
+     ],
+     "recall": [
+      0.012,
+      0.037
+     ],
+     "false_alarm_rate": [
+      0.001,
+      0.016
+     ],
+     "f1": [
+      0.023,
+      0.071
+     ],
+     "youden_j": [
+      0.006,
+      0.03
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.623,
+      0.868
+     ],
+     "recall": [
+      0.016,
+      0.032
+     ],
+     "false_alarm_rate": [
+      0.003,
+      0.012
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.55,
+     "recall": 1.58,
+     "false_alarm_rate": 1.73
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 9,
+     "fp": 0,
+     "fn": 423,
+     "tn": 95,
+     "precision": 1.0,
+     "recall": 0.021,
+     "false_alarm_rate": 0.0,
+     "f1": 0.041,
+     "youden_j": 0.021,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 2,
+     "fp": 0,
+     "fn": 63,
+     "tn": 98,
+     "precision": 1.0,
+     "recall": 0.031,
+     "false_alarm_rate": 0.0,
+     "f1": 0.06,
+     "youden_j": 0.031,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 22,
+     "fp": 10,
+     "fn": 930,
+     "tn": 1361,
+     "precision": 0.688,
+     "recall": 0.023,
+     "false_alarm_rate": 0.007,
+     "f1": 0.045,
+     "youden_j": 0.016,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 24,
+     "fp": 12,
+     "fn": 2324,
+     "tn": 2143,
+     "precision": 0.667,
+     "recall": 0.01,
+     "false_alarm_rate": 0.006,
+     "f1": 0.02,
+     "youden_j": 0.005,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 15,
+     "fp": 6,
+     "fn": 830,
+     "tn": 913,
+     "precision": 0.714,
+     "recall": 0.018,
+     "false_alarm_rate": 0.007,
+     "f1": 0.035,
+     "youden_j": 0.011,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 18,
+     "fp": 4,
+     "fn": 586,
+     "tn": 641,
+     "precision": 0.818,
+     "recall": 0.03,
+     "false_alarm_rate": 0.006,
+     "f1": 0.058,
+     "youden_j": 0.024,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  },
+  "pose": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 164,
+    "fp": 79,
+    "fn": 1285,
+    "tn": 1485,
+    "precision": 0.675,
+    "recall": 0.113,
+    "false_alarm_rate": 0.051,
+    "f1": 0.194,
+    "youden_j": 0.063,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.588,
+      0.765
+     ],
+     "recall": [
+      0.094,
+      0.136
+     ],
+     "false_alarm_rate": [
+      0.038,
+      0.067
+     ],
+     "f1": [
+      0.162,
+      0.229
+     ],
+     "youden_j": [
+      0.039,
+      0.087
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.614,
+      0.731
+     ],
+     "recall": [
+      0.098,
+      0.131
+     ],
+     "false_alarm_rate": [
+      0.041,
+      0.063
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.51,
+     "recall": 1.28,
+     "false_alarm_rate": 1.3
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 31,
+     "fp": 6,
+     "fn": 401,
+     "tn": 89,
+     "precision": 0.838,
+     "recall": 0.072,
+     "false_alarm_rate": 0.063,
+     "f1": 0.132,
+     "youden_j": 0.009,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 26,
+     "fp": 1,
+     "fn": 39,
+     "tn": 97,
+     "precision": 0.963,
+     "recall": 0.4,
+     "false_alarm_rate": 0.01,
+     "f1": 0.565,
+     "youden_j": 0.39,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 107,
+     "fp": 72,
+     "fn": 845,
+     "tn": 1299,
+     "precision": 0.598,
+     "recall": 0.112,
+     "false_alarm_rate": 0.053,
+     "f1": 0.189,
+     "youden_j": 0.06,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 296,
+     "fp": 93,
+     "fn": 2052,
+     "tn": 2062,
+     "precision": 0.761,
+     "recall": 0.126,
+     "false_alarm_rate": 0.043,
+     "f1": 0.216,
+     "youden_j": 0.083,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 92,
+     "fp": 43,
+     "fn": 753,
+     "tn": 876,
+     "precision": 0.681,
+     "recall": 0.109,
+     "false_alarm_rate": 0.047,
+     "f1": 0.188,
+     "youden_j": 0.062,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 72,
+     "fp": 36,
+     "fn": 532,
+     "tn": 609,
+     "precision": 0.667,
+     "recall": 0.119,
+     "false_alarm_rate": 0.056,
+     "f1": 0.202,
+     "youden_j": 0.063,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  },
+  "training": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 207,
+    "fp": 81,
+    "fn": 1242,
+    "tn": 1483,
+    "precision": 0.719,
+    "recall": 0.143,
+    "false_alarm_rate": 0.052,
+    "f1": 0.238,
+    "youden_j": 0.091,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.63,
+      0.804
+     ],
+     "recall": [
+      0.116,
+      0.174
+     ],
+     "false_alarm_rate": [
+      0.036,
+      0.069
+     ],
+     "f1": [
+      0.198,
+      0.283
+     ],
+     "youden_j": [
+      0.062,
+      0.122
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.664,
+      0.768
+     ],
+     "recall": [
+      0.126,
+      0.162
+     ],
+     "false_alarm_rate": [
+      0.042,
+      0.064
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.67,
+     "recall": 1.6,
+     "false_alarm_rate": 1.51
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 19,
+     "fp": 0,
+     "fn": 413,
+     "tn": 95,
+     "precision": 1.0,
+     "recall": 0.044,
+     "false_alarm_rate": 0.0,
+     "f1": 0.084,
+     "youden_j": 0.044,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 27,
+     "fp": 3,
+     "fn": 38,
+     "tn": 95,
+     "precision": 0.9,
+     "recall": 0.415,
+     "false_alarm_rate": 0.031,
+     "f1": 0.568,
+     "youden_j": 0.385,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 161,
+     "fp": 78,
+     "fn": 791,
+     "tn": 1293,
+     "precision": 0.674,
+     "recall": 0.169,
+     "false_alarm_rate": 0.057,
+     "f1": 0.27,
+     "youden_j": 0.112,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 361,
+     "fp": 73,
+     "fn": 1987,
+     "tn": 2082,
+     "precision": 0.832,
+     "recall": 0.154,
+     "false_alarm_rate": 0.034,
+     "f1": 0.26,
+     "youden_j": 0.12,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 120,
+     "fp": 44,
+     "fn": 725,
+     "tn": 875,
+     "precision": 0.732,
+     "recall": 0.142,
+     "false_alarm_rate": 0.048,
+     "f1": 0.238,
+     "youden_j": 0.094,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 87,
+     "fp": 37,
+     "fn": 517,
+     "tn": 608,
+     "precision": 0.702,
+     "recall": 0.144,
+     "false_alarm_rate": 0.057,
+     "f1": 0.239,
+     "youden_j": 0.087,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  },
+  "yolo_duyen": {
+   "pooled": {
+    "units": 3013,
+    "groups": 590,
+    "tp": 21,
+    "fp": 16,
+    "fn": 1428,
+    "tn": 1548,
+    "precision": 0.568,
+    "recall": 0.014,
+    "false_alarm_rate": 0.01,
+    "f1": 0.028,
+    "youden_j": 0.004,
+    "ci_group_bootstrap": {
+     "precision": [
+      0.339,
+      0.839
+     ],
+     "recall": [
+      0.007,
+      0.023
+     ],
+     "false_alarm_rate": [
+      0.003,
+      0.021
+     ],
+     "f1": [
+      0.014,
+      0.045
+     ],
+     "youden_j": [
+      -0.008,
+      0.015
+     ]
+    },
+    "ci_if_independent": {
+     "precision": [
+      0.409,
+      0.713
+     ],
+     "recall": [
+      0.009,
+      0.022
+     ],
+     "false_alarm_rate": [
+      0.006,
+      0.017
+     ]
+    },
+    "width_ratio": {
+     "precision": 1.65,
+     "recall": 1.24,
+     "false_alarm_rate": 1.66
+    }
+   },
+   "per_dataset": {
+    "Cheating_Detection_v4i_yolov11": {
+     "units": 527,
+     "groups": 328,
+     "tp": 1,
+     "fp": 0,
+     "fn": 431,
+     "tn": 95,
+     "precision": 1.0,
+     "recall": 0.002,
+     "false_alarm_rate": 0.0,
+     "f1": 0.005,
+     "youden_j": 0.002,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_cheating_v2i_yolov11": {
+     "units": 163,
+     "groups": 80,
+     "tp": 5,
+     "fp": 0,
+     "fn": 60,
+     "tn": 98,
+     "precision": 1.0,
+     "recall": 0.077,
+     "false_alarm_rate": 0.0,
+     "f1": 0.143,
+     "youden_j": 0.077,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "exam_malpractice_detection2_v18i_yolov11": {
+     "units": 2323,
+     "groups": 182,
+     "tp": 15,
+     "fp": 16,
+     "fn": 937,
+     "tn": 1355,
+     "precision": 0.484,
+     "recall": 0.016,
+     "false_alarm_rate": 0.012,
+     "f1": 0.031,
+     "youden_j": 0.004,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   },
+   "per_split": {
+    "train": {
+     "units": 4503,
+     "groups": 273,
+     "tp": 10,
+     "fp": 11,
+     "fn": 2338,
+     "tn": 2144,
+     "precision": 0.476,
+     "recall": 0.004,
+     "false_alarm_rate": 0.005,
+     "f1": 0.008,
+     "youden_j": -0.001,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "valid": {
+     "units": 1764,
+     "groups": 394,
+     "tp": 11,
+     "fp": 10,
+     "fn": 834,
+     "tn": 909,
+     "precision": 0.524,
+     "recall": 0.013,
+     "false_alarm_rate": 0.011,
+     "f1": 0.025,
+     "youden_j": 0.002,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    },
+    "test": {
+     "units": 1249,
+     "groups": 251,
+     "tp": 10,
+     "fp": 6,
+     "fn": 594,
+     "tn": 639,
+     "precision": 0.625,
+     "recall": 0.017,
+     "false_alarm_rate": 0.009,
+     "f1": 0.032,
+     "youden_j": 0.007,
+     "ci_group_bootstrap": {},
+     "ci_if_independent": {},
+     "width_ratio": {}
+    }
+   }
+  }
+ }
+}
