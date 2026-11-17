@@ -1,0 +1,89 @@
+{
+ "dataset": "exam malpractice detection2.v18i.yolov11",
+ "classes": [
+  "cheating",
+  "normal"
+ ],
+ "cheat": [
+  "cheating"
+ ],
+ "normal": [
+  "normal"
+ ],
+ "images": 327,
+ "iou": 0.4,
+ "by_sensitivity": {
+  "0.0": {
+   "theo_nguoi": {
+    "tp": 25,
+    "fp": 17,
+    "fn": 761,
+    "tn": 1082,
+    "precision": 0.595,
+    "recall": 0.032,
+    "false_alarm_rate": 0.015
+   },
+   "theo_anh": {
+    "tp": 30,
+    "fp": 1,
+    "fn": 282,
+    "tn": 10,
+    "precision": 0.968,
+    "recall": 0.096,
+    "false_alarm_rate": 0.091
+   },
+   "khong_ghep_duoc": {
+    "gian_lan": 166,
+    "binh_thuong": 272
+   }
+  },
+  "0.5": {
+   "theo_nguoi": {
+    "tp": 37,
+    "fp": 32,
+    "fn": 807,
+    "tn": 1159,
+    "precision": 0.536,
+    "recall": 0.044,
+    "false_alarm_rate": 0.027
+   },
+   "theo_anh": {
+    "tp": 54,
+    "fp": 2,
+    "fn": 258,
+    "tn": 9,
+    "precision": 0.964,
+    "recall": 0.173,
+    "false_alarm_rate": 0.182
+   },
+   "khong_ghep_duoc": {
+    "gian_lan": 108,
+    "binh_thuong": 180
+   }
+  },
+  "1.0": {
+   "theo_nguoi": {
+    "tp": 56,
+    "fp": 40,
+    "fn": 816,
+    "tn": 1178,
+    "precision": 0.583,
+    "recall": 0.064,
+    "false_alarm_rate": 0.033
+   },
+   "theo_anh": {
+    "tp": 79,
+    "fp": 2,
+    "fn": 233,
+    "tn": 9,
+    "precision": 0.975,
+    "recall": 0.253,
+    "false_alarm_rate": 0.182
+   },
+   "khong_ghep_duoc": {
+    "gian_lan": 80,
+    "binh_thuong": 153
+   }
+  }
+ }
+}

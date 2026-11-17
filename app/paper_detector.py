@@ -41,7 +41,7 @@ def get_models(classifier_path=None):
 def infer(frame, threshold=0.55, classifier_path=None):
     pose, classifier, device=get_models(classifier_path)
     size=env_int('YOLO_IMGSZ',640,256,1280)
-    result=pose.predict(source=frame,device=device,imgsz=size,conf=threshold,verbose=False)[0]
+    result=pose.predict(source=frame,device=device,half=device not in ('cpu','mps') and runtime.use_half(),imgsz=size,conf=threshold,verbose=False)[0]
     if result.boxes is None or result.keypoints is None:
         return []
     boxes=result.boxes.xyxy.cpu().numpy()

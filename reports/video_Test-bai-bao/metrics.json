@@ -1,0 +1,163 @@
+{
+ "labels": [
+  [
+   0.0,
+   3.5,
+   "normal"
+  ],
+  [
+   4.0,
+   6.5,
+   "cheat"
+  ],
+  [
+   7.0,
+   8.5,
+   "normal"
+  ],
+  [
+   9.0,
+   11.5,
+   "cheat"
+  ],
+  [
+   12.5,
+   20.0,
+   "normal"
+  ]
+ ],
+ "at_sensitivity": {
+  "Gian lận": {
+   "tp": 0,
+   "fp": 0,
+   "fn": 26,
+   "tn": 63,
+   "precision": null,
+   "recall": 0.0,
+   "f1": null,
+   "frames": 89
+  },
+  "Nghi ngờ hoặc Gian lận": {
+   "tp": 3,
+   "fp": 0,
+   "fn": 23,
+   "tn": 63,
+   "precision": 1.0,
+   "recall": 0.11538461538461539,
+   "f1": 0.20689655172413793,
+   "frames": 89
+  }
+ },
+ "sweep": {
+  "0.0": {
+   "Gian lận": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 26,
+    "tn": 63,
+    "precision": null,
+    "recall": 0.0,
+    "f1": null,
+    "frames": 89
+   },
+   "Nghi ngờ hoặc Gian lận": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 23,
+    "tn": 63,
+    "precision": 1.0,
+    "recall": 0.11538461538461539,
+    "f1": 0.20689655172413793,
+    "frames": 89
+   }
+  },
+  "0.25": {
+   "Gian lận": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 26,
+    "tn": 63,
+    "precision": null,
+    "recall": 0.0,
+    "f1": null,
+    "frames": 89
+   },
+   "Nghi ngờ hoặc Gian lận": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 23,
+    "tn": 63,
+    "precision": 1.0,
+    "recall": 0.11538461538461539,
+    "f1": 0.20689655172413793,
+    "frames": 89
+   }
+  },
+  "0.5": {
+   "Gian lận": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 26,
+    "tn": 63,
+    "precision": null,
+    "recall": 0.0,
+    "f1": null,
+    "frames": 89
+   },
+   "Nghi ngờ hoặc Gian lận": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 23,
+    "tn": 63,
+    "precision": 1.0,
+    "recall": 0.11538461538461539,
+    "f1": 0.20689655172413793,
+    "frames": 89
+   }
+  },
+  "0.75": {
+   "Gian lận": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 26,
+    "tn": 63,
+    "precision": null,
+    "recall": 0.0,
+    "f1": null,
+    "frames": 89
+   },
+   "Nghi ngờ hoặc Gian lận": {
+    "tp": 9,
+    "fp": 1,
+    "fn": 17,
+    "tn": 62,
+    "precision": 0.9,
+    "recall": 0.34615384615384615,
+    "f1": 0.5,
+    "frames": 89
+   }
+  },
+  "1.0": {
+   "Gian lận": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 26,
+    "tn": 63,
+    "precision": null,
+    "recall": 0.0,
+    "f1": null,
+    "frames": 89
+   },
+   "Nghi ngờ hoặc Gian lận": {
+    "tp": 17,
+    "fp": 1,
+    "fn": 9,
+    "tn": 62,
+    "precision": 0.9444444444444444,
+    "recall": 0.6538461538461539,
+    "f1": 0.7727272727272727,
+    "frames": 89
+   }
+  }
+ }
+}

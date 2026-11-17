@@ -1,4 +1,8 @@
+import ast
+import subprocess
+import sys
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import numpy as np
@@ -277,6 +281,152 @@ class RunTests(unittest.TestCase):
         self.assertEqual(calls.count('person_coco'), 12)
         self.assertEqual(calls.count('training'), 6)             # mô hình hành vi chỉ 1/2 số khung
         self.assertEqual(outs[-1]['counts'], {ensemble.LABEL_CHEAT: 1})
+
+
+class SelfContainedTests(unittest.TestCase):
+    """v2 tự chứa: không phụ thuộc ensemble.py (v1), chỉ dùng chung judge.py và runtime.py."""
+
+    def test_source_does_not_import_v1(self):
+        tree = ast.parse(Path(v2.__file__).read_text(encoding='utf-8'))
+        bad = []
+        for n in ast.walk(tree):
+            if isinstance(n, ast.Import):
+                bad += [a.name for a in n.names if a.name.split('.')[0] == 'ensemble']
+            elif isinstance(n, ast.ImportFrom) and (n.module or '').split('.')[0] == 'ensemble':
+                bad.append(n.module)
+        self.assertEqual(bad, [])
+
+    def test_importing_v2_in_a_fresh_interpreter_does_not_load_v1(self):
+        code = f"import sys; sys.path.insert(0, {str(_paths.APP)!r}); import ensemble_v2; sys.exit(1 if 'ensemble' in sys.modules else 0)"
+        r = subprocess.run([sys.executable, '-I', '-c', code], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_model_list_and_debug_log(self):
+        self.assertEqual(v2.components(), ['person_coco', 'pose', 'training'])
+        self.assertEqual(v2.DEBUG_LOG.name, 'ensemble_v2_debug.jsonl')   # không trộn với nhật ký của v1
+
+    def test_registry_for_v2_does_not_load_v1_and_lists_only_v2_weights(self):
+        code = ("import sys; sys.path.insert(0, %r); import inference; files = {p.name for p in inference.required_files('ensemble_v2')}; "
+                "inference.ensemble_module('ensemble_v2'); "
+                "assert 'ensemble' not in sys.modules, 'v1 bị nạp'; "
+                "assert {'training_yolo.pt', 'yolo11n-pose.pt'} <= files, files; "
+                "assert not ({'duyen_knn.joblib', 'gian_lan.pt', 'yolo11_duyen.pt'} & files), files; "
+                "v1 = {p.name for p in inference.required_files('ensemble')}; "
+                "assert {'duyen_knn.joblib', 'gian_lan.pt', 'yolo11_duyen.pt'} <= v1, v1") % str(_paths.APP)
+        r = subprocess.run([sys.executable, '-I', '-c', code], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+
+class DifferentialTests(unittest.TestCase):
+    """Mỗi hàm v2 chép từ ensemble.py (v1) phải cho kết quả Y HỆT bản gốc trên dữ liệu ngẫu nhiên (hạt giống cố định)."""
+    N = 300
+
+    def rng(self, seed):
+        return np.random.default_rng(seed)
+
+    @staticmethod
+    def box(rng):
+        x0, x1 = sorted(rng.uniform(0, 1, 2))
+        y0, y1 = sorted(rng.uniform(0, 1, 2))
+        return [float(x0), float(y0), float(x1), float(y1)]
+
+    def test_constants_are_identical(self):
+        for name in ('BEHAVIOR_EVERY', 'THREADS_PARALLEL', 'THREADS_SOLO', 'MOTION_MEAN', 'MOTION_PIXEL', 'MOTION_AREA', 'MAX_STALE_S', 'GPU_IMGSZ',
+                     'KPT_MIN_CONF', 'POSE_MIN_BOX_PX', 'KPT_NOISE_PX', 'PROFILE_MIN_PX', 'POSE_WEIGHTS', '_FONT_CANDIDATES', 'COLORS'):
+            self.assertEqual(getattr(v2, name), getattr(ensemble, name), name)
+
+    def test_box_geometry(self):
+        rng = self.rng(1)
+        for _ in range(self.N):
+            a, b = self.box(rng), self.box(rng)
+            raw = [float(v) for v in rng.uniform(-0.3, 1.3, 4)]                 # có thể ngược thứ tự / ngoài [0,1]
+            self.assertEqual(v2.clamp_box(raw), ensemble.clamp_box(raw))
+            self.assertEqual(v2.area(a), ensemble.area(a))
+            self.assertEqual(v2.inter(a, b), ensemble.inter(a, b))
+            self.assertEqual(v2.iou(a, b), ensemble.iou(a, b))
+            self.assertEqual(v2.associated(a, b), ensemble.associated(a, b))
+            self.assertEqual(v2.center_in(a, b), ensemble.center_in(a, b))
+            self.assertEqual(v2.center_in(a, b, 0.4), ensemble.center_in(a, b, 0.4))
+
+    def dets(self, rng, n, labels, conf=True):
+        return [{'label': str(rng.choice(labels)), 'confidence': float(rng.uniform(0.2, 1.0)) if conf else None, 'box': self.box(rng)} for _ in range(n)]
+
+    def test_normalisation_dedupe_and_people_collection(self):
+        rng = self.rng(2)
+        for _ in range(100):
+            ds = self.dets(rng, 6, ['person', 'cell phone', 'Cheating', 'normal'])
+            self.assertEqual([v2._norm(d) for d in ds], [ensemble._norm(d) for d in ds])
+            norm = [v2._norm(d) for d in ds]
+            self.assertEqual(v2._dedupe(norm), ensemble._dedupe(norm))
+            for person_min in (0.25, 0.35, 0.6):
+                self.assertEqual(v2.collect_persons(ds, person_min), ensemble.collect_persons(ds, {}, person_min))
+
+    def test_assign_evidence(self):
+        rng = self.rng(3)
+        for _ in range(100):
+            persons = [{'box': self.box(rng), 'person_conf': 0.9, 'origin': 'person_coco'} for _ in range(4)]
+            ds = self.dets(rng, 8, ['Cheating', 'Normal', 'cheating'])
+            for labels in ({'cheating'}, {'cheating', 'normal'}):
+                self.assertEqual(v2.assign_evidence(persons, 'training', ds, labels), ensemble.assign_evidence(persons, 'training', ds, labels))
+
+    def test_missing_confidence_counts_as_no_evidence_in_v2(self):
+        persons = [{'box': P1, 'person_conf': 0.9, 'origin': 'person_coco'}]
+        d = [{'label': 'Cheating', 'confidence': None, 'box': P1}]
+        self.assertEqual(v2.assign_evidence(persons, 'training', d, {'cheating'}), [0.0])
+        self.assertEqual(ensemble.assign_evidence(persons, 'training', d, {'cheating'}), [ensemble.KNN_NOMINAL_CONF])   # khác biệt có chủ ý (YOLO luôn có confidence)
+
+    def keypoints(self, rng, eyes):
+        xy = rng.uniform(0, 300, (17, 2))
+        conf = rng.uniform(0.6, 1.0, 17)
+        conf[1], conf[2] = (0.9, 0.9) if eyes == 'both' else (0.9, 0.1) if eyes == 'left' else (0.1, 0.9) if eyes == 'right' else (0.1, 0.1)
+        conf[3], conf[4] = rng.choice([0.1, 0.9], 2)
+        return xy, conf
+
+    def test_head_turn_measures_match_v1(self):
+        rng = self.rng(4)
+        for _ in range(self.N):
+            for scale in (0.5, 1.0, 2.0):
+                xy, conf = self.keypoints(rng, 'both')
+                self.assertEqual(v2.head_turn_evidence(xy, conf, scale), ensemble.head_turn_evidence(xy, conf, scale))   # nhánh hai mắt: y hệt
+                self.assertEqual(v2.head_turn_direction(xy, conf), ensemble.head_turn_direction(xy, conf))
+                for eyes in ('left', 'right'):
+                    xy, conf = self.keypoints(rng, eyes)
+                    self.assertIsNone(v2.head_turn_evidence(xy, conf, scale))                                             # nhánh một mắt: không đo (tín hiệu yếu)
+                    self.assertEqual(v2.profile_cue(xy, conf, scale) is not None, ensemble.head_turn_evidence(xy, conf, scale) is not None)
+                    self.assertEqual(v2.head_turn_direction(xy, conf), ensemble.head_turn_direction(xy, conf))
+                xy, conf = self.keypoints(rng, 'none')
+                self.assertIsNone(v2.head_turn_evidence(xy, conf, scale))
+                self.assertIsNone(v2.profile_cue(xy, conf, scale))
+                self.assertIsNone(ensemble.head_turn_evidence(xy, conf, scale))
+
+    def test_motion_gate_and_imgsz(self):
+        rng = self.rng(5)
+        frames = [rng.integers(0, 255, (90, 120, 3), dtype=np.uint8) for _ in range(6)]
+        frames.append(frames[0].copy())                                  # cùng cảnh: không chuyển động
+        frames.append(np.clip(frames[0].astype(int) + 2, 0, 255).astype(np.uint8))   # đổi rất nhẹ
+        for f in frames:
+            self.assertTrue(np.array_equal(v2._signature(f), ensemble._signature(f)))
+        for a in frames:
+            for b in frames:
+                self.assertEqual(v2._moved(v2._signature(a), v2._signature(b)), ensemble._moved(ensemble._signature(a), ensemble._signature(b)))
+        for device in ('cpu', 'cuda'):
+            with mock.patch('runtime.device', return_value=device):
+                for shape in ((480, 640, 3), (720, 1280, 3), (500, 700, 3)):
+                    f = np.zeros(shape, np.uint8)
+                    for req in (None, 640, 800, 960, 1280):
+                        self.assertEqual(v2._fit_imgsz(f, req), ensemble._fit_imgsz(f, req))
+                self.assertEqual(v2.POSE_IMGSZ_FN(), ensemble.POSE_IMGSZ_FN())
+
+    def test_pack_and_draw_are_byte_identical(self):
+        rng = self.rng(6)
+        frame = rng.integers(0, 255, (120, 160, 3), dtype=np.uint8)
+        labels = ['Bình thường', 'Nghi ngờ', 'Gian lận']
+        people = [{'label': labels[i % 3], 'confidence': round(float(rng.uniform(0, 1)), 3), 'box': self.box(rng), 'score': 0.5, 'person_conf': 0.9,
+                   'votes': {'pose': 0.0}, 'evidence': ['Quay/nghiêng đầu (0.90)'], 'id': i + 1, 'window_score': 0.3, 'observed_s': 1.5, 'frame_tier': 'watch'} for i in range(5)]
+        phones = [{'confidence': 0.8, 'box': self.box(rng)}]
+        fused = {'people': people, 'phones': phones}
+        for include in (True, False):
+            self.assertEqual(v2._pack(frame, fused, 7, {'a': 1}, {}, False, True, include), ensemble._pack(frame, fused, 7, {'a': 1}, {}, False, True, include))
 
 
 if __name__ == '__main__':

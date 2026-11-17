@@ -54,12 +54,12 @@ OPS = {  # điểm vận hành của hệ thống ở khung đơn lẻ
 
 # Tệp mã quyết định ĐẦU RA của từng mô hình (băm vào dấu vân tay cache). Không gồm inference.py/app.py: thêm mô hình mới ở đó không làm
 # đổi kết quả mô hình cũ; thay vào đó băm các hằng số kích thước ảnh của inference (xem fingerprint).
-CODE_FILES = {'ensemble': ('ensemble.py', 'judge.py', 'paper_detector.py'), 'ensemble_v2': ('ensemble_v2.py', 'ensemble.py', 'judge.py')}  # v2 dùng lại hàm của ensemble.py (hình học, pose)
+CODE_FILES = {'ensemble': ('ensemble.py', 'judge.py', 'paper_detector.py'), 'ensemble_v2': ('ensemble_v2.py', 'judge.py')}  # v2 tự chứa: không phụ thuộc ensemble.py
 
 
 def fingerprint(model: str, cfg: Settings, all_sources: bool) -> str:
-    import ensemble
-    h = hashlib.sha1(json.dumps([model, cfg.to_dict(), all_sources, inference.DEFAULT_IMGSZ, inference.ENSEMBLE_IMGSZ, ensemble.GPU_IMGSZ], sort_keys=True).encode())
+    gpu_imgsz = inference.ensemble_module(model).GPU_IMGSZ if model in inference.ENSEMBLES else None   # chỉ nạp module của chính mô hình đang đo
+    h = hashlib.sha1(json.dumps([model, cfg.to_dict(), all_sources, inference.DEFAULT_IMGSZ, inference.ENSEMBLE_IMGSZ, gpu_imgsz], sort_keys=True).encode())
     for name in CODE_FILES.get(model, sorted(p.name for p in (ROOT / 'app').glob('*.py'))):
         f = ROOT / 'app' / name
         h.update(name.encode()); h.update(f.read_bytes() if f.exists() else b'')
@@ -158,7 +158,7 @@ def main():
     normal_ids = {i for i, n in cls.items() if n in normal_names}
     slug = re.sub(r'[^A-Za-z0-9]+', '_', ds.name)[:40]
     cfg = Settings.from_dict(sens(a.sensitivity))
-    if not a.no_all_sources:
+    if not a.no_all_sources and a.model == 'ensemble':   # chỉ v1 có thác KNN/Training; v2 không có nên không nạp v1 khi đo v2
         import ensemble as _ens
         if hasattr(_ens, '_needs_knn'):
             _ens._needs_knn = lambda *x, **k: True  # chỉ cho phép đo: nhãn cuối không đổi vì nguồn yếu không tự gây cờ

@@ -1,0 +1,101 @@
+{
+ "dataset": "Cheating Detection.v4i.yolov11",
+ "classes": [
+  "earphone",
+  "hand_gestures",
+  "head_rotation",
+  "mobile_phone",
+  "normal",
+  "paper_passing",
+  "peeking",
+  "smartwatch"
+ ],
+ "cheat": [
+  "earphone",
+  "hand_gestures",
+  "head_rotation",
+  "mobile_phone",
+  "paper_passing",
+  "peeking",
+  "smartwatch"
+ ],
+ "normal": [
+  "normal"
+ ],
+ "images": 618,
+ "iou": 0.4,
+ "by_sensitivity": {
+  "0.0": {
+   "theo_nguoi": {
+    "tp": 4,
+    "fp": 2,
+    "fn": 99,
+    "tn": 55,
+    "precision": 0.667,
+    "recall": 0.039,
+    "false_alarm_rate": 0.035
+   },
+   "theo_anh": {
+    "tp": 4,
+    "fp": 2,
+    "fn": 410,
+    "tn": 18,
+    "precision": 0.667,
+    "recall": 0.01,
+    "false_alarm_rate": 0.1
+   },
+   "khong_ghep_duoc": {
+    "gian_lan": 329,
+    "binh_thuong": 38
+   }
+  },
+  "0.5": {
+   "theo_nguoi": {
+    "tp": 8,
+    "fp": 3,
+    "fn": 97,
+    "tn": 59,
+    "precision": 0.727,
+    "recall": 0.076,
+    "false_alarm_rate": 0.048
+   },
+   "theo_anh": {
+    "tp": 8,
+    "fp": 3,
+    "fn": 406,
+    "tn": 17,
+    "precision": 0.727,
+    "recall": 0.019,
+    "false_alarm_rate": 0.15
+   },
+   "khong_ghep_duoc": {
+    "gian_lan": 327,
+    "binh_thuong": 33
+   }
+  },
+  "1.0": {
+   "theo_nguoi": {
+    "tp": 17,
+    "fp": 4,
+    "fn": 92,
+    "tn": 61,
+    "precision": 0.81,
+    "recall": 0.156,
+    "false_alarm_rate": 0.062
+   },
+   "theo_anh": {
+    "tp": 17,
+    "fp": 4,
+    "fn": 397,
+    "tn": 16,
+    "precision": 0.81,
+    "recall": 0.041,
+    "false_alarm_rate": 0.2
+   },
+   "khong_ghep_duoc": {
+    "gian_lan": 323,
+    "binh_thuong": 30
+   }
+  }
+ }
+}

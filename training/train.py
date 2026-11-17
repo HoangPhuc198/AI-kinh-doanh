@@ -29,6 +29,22 @@ def metrics_of(m):
             'mAP50_95': round(float(m.box.map), 4), 'per_class_mAP50': {m.names[int(i)]: round(float(v), 4) for i, v in zip(m.box.ap_class_index, m.box.ap50)}}
 
 
+def coco_two_class_head(yolo, keep=(0, 67)):
+    """Cắt đầu phân loại COCO 80 lớp còn 2 lớp (person=0, cell phone=67), giữ nguyên trọng số học sẵn của các hàng đó.
+    Nhờ vậy model xuất phát ngang model COCO gốc thay vì đầu ngẫu nhiên (nguyên nhân person_phone_v1 thất bại)."""
+    import torch
+    det = yolo.model.model[-1]
+    for seq in det.cv3:
+        old = seq[-1]
+        new = torch.nn.Conv2d(old.in_channels, len(keep), 1)
+        with torch.no_grad():
+            new.weight.copy_(old.weight[list(keep)]); new.bias.copy_(old.bias[list(keep)])
+        seq[-1] = new
+    det.nc = len(keep); det.no = det.nc + det.reg_max * 4
+    yolo.model.nc = len(keep); yolo.model.names = {0: 'person', 1: 'cell phone'}
+    return yolo
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--data'); ap.add_argument('--weights', default='models/yolo11n_coco.pt')
@@ -39,7 +55,7 @@ def main():
     ap.add_argument('--fraction', type=float, default=1.0); ap.add_argument('--device', default=None)
     ap.add_argument('--resume', default=None, help='đường dẫn last.pt để tiếp tục')
     ap.add_argument('--freeze', type=int, default=None, help='đóng băng N lớp đầu (backbone) khi dữ liệu nhỏ')
-    ap.add_argument('--lr0', type=float, default=None); ap.add_argument('--optimizer', default='auto')
+    ap.add_argument('--init-from-coco', action='store_true', help='khởi tạo đầu 2 lớp từ hàng person/cell phone của COCO'); ap.add_argument('--lr0', type=float, default=None); ap.add_argument('--optimizer', default='auto')
     ap.add_argument('--weight-decay', type=float, default=0.0005)
     a = ap.parse_args()
     torch = runtime.load_torch()
@@ -55,8 +71,11 @@ def main():
     weights = ROOT / a.weights if not Path(a.weights).is_absolute() else Path(a.weights)
     started = time.time()
     model = YOLO(str(weights))
+    if a.init_from_coco:
+        model = coco_two_class_head(model)
     cfg = dict(data=a.data, epochs=a.epochs, imgsz=a.imgsz, batch=a.batch, workers=a.workers, patience=a.patience, seed=a.seed, deterministic=True,
-               project=str(ROOT / a.project), name=a.name, exist_ok=False, device=device, fraction=a.fraction, save_period=-1, plots=False,
+               project=str(ROOT / a.project), name=a.name, exist_ok=False, device=device, fraction=a.fraction, save_period=-1, plots=False, amp=False,  # amp=False: FP16 cho kết quả sai trên GTX 16xx
+               
                # augmentation có kiểm soát: ánh sáng, scale (người nhỏ/xa), che khuất; không lật dọc/xoay để giữ ngữ cảnh phòng thi
                hsv_h=0.015, hsv_s=0.5, hsv_v=0.4, scale=0.6, translate=0.1, degrees=0.0, fliplr=0.5, flipud=0.0, mosaic=1.0, erasing=0.3, close_mosaic=5)
     cfg.update(optimizer=a.optimizer, weight_decay=a.weight_decay)

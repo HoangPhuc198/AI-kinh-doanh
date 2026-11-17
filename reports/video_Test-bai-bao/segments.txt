@@ -1,0 +1,6 @@
+Video: Test-bai-bao.mp4 · 113 khung mẫu · độ nhạy 0.5
+
+Gian lận: 0 đoạn
+Nghi ngờ: 2 đoạn
+  11.0s - 12.4s · người [2] · KNN Duyên: tư thế nghi vấn; Quay/nghiêng đầu (1.00); YOLO11 Duyên nghi vấn (0.39)
+  22.2s - 22.4s · người [5] · Quay/nghiêng đầu (0.80)

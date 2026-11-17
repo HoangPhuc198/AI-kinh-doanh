@@ -1,6 +1,6 @@
 # ExamVision Ensemble v2
 
-Bản sửa lỗi của `ensemble` (v1). v1 giữ nguyên (`app/ensemble.py`, khóa `ensemble`) để quay lại; v2 là khóa `ensemble_v2` (`app/ensemble_v2.py`), chọn được ở cả trang `/` và `/giam-sat`. Mặc định giao diện vẫn là v1.
+Bản sửa lỗi của `ensemble` (v1). v1 giữ nguyên (`app/ensemble.py`, khóa `ensemble`) để quay lại; v2 là khóa `ensemble_v2` (`app/ensemble_v2.py`), chọn được ở cả trang `/` và `/giam-sat`. Mặc định giao diện vẫn là v1. **v2 tự chứa**: không import `ensemble.py`; xem mục "Cấu trúc file và tính tự chứa" bên dưới.
 
 ## Lỗi của v1 và cách v2 sửa
 
@@ -71,6 +71,24 @@ Qua đường video của giao diện (khung ≤ 960 px, JPEG, trạng thái the
 - `SINGLE_SOURCE_FACTOR` (3) là heuristic. Điện thoại "gần người" chưa phân biệt cầm dùng với để trên bàn: giữ ≥ 4,5 s sẽ lên Gian lận (muốn bỏ: bỏ `'phone'` khỏi `STRONG`).
 - Cách duy nhất để cải thiện thật sự mức "cúi viết" so với "quay ngang": video/webcam có nhãn theo đoạn thời gian. Hai video phòng thi chỉ là hai ca, không đủ để chỉnh luật mà không over-fit.
 - Chưa thử khung bao khi tua video trong trình duyệt thật; mới kiểm tra logic `fresh()` bằng node với video giả lập.
+
+## Cấu trúc file và tính tự chứa
+
+`app/ensemble_v2.py` không import `ensemble.py` (v1). Nó chỉ dùng chung `judge.py` (kết luận theo thời gian + `Settings`) và `runtime.py` (nạp mô hình); `inference.py` chỉ đăng ký nó và nạp đúng module của mô hình được chọn. Chạy v2 không cần `ensemble.py`, `paper_detector.py` hay trọng số của KNN, `gianlan`, `yolo_duyen`. Trọng số v2 cần: `yolo11m_coco.pt` (GPU) hoặc `yolo11n_coco.pt` (CPU), `yolo11n-pose.pt`, `training_yolo.pt`.
+
+File chia thành tám mục đánh dấu bằng khung `# ====`: (1) nguồn và luật của v2, (2) cấu hình chạy, (3) hình học, (4) vẽ và đóng gói kết quả, (5) cổng chuyển động, (6) quay đầu từ keypoint, (7) gộp bằng chứng, (8) chạy mô hình. Các mục 2–5 và các hàm đo hướng/hai mắt ở mục 6 được **chép nguyên văn từ v1**.
+
+Khác biệt có chủ ý so với bản chép (đều được test):
+- `collect_persons`: chỉ neo COCO tạo người. v1 còn thêm người từ các nguồn hành vi, nhưng v2 luôn gọi với danh sách nguồn rỗng nên kết quả giống hệt.
+- `assign_evidence`: confidence thiếu (`None`) tính 0,0. v1 dùng mức KNN danh nghĩa 0,70; YOLO luôn có confidence nên không xảy ra.
+- `head_turn_evidence`: chỉ nhánh hai mắt. Nhánh một mắt của v1 là `profile_cue` (tín hiệu yếu) ở v2.
+- Nhóm luồng riêng (`ensemble_v2`) và nhật ký debug riêng `logs/ensemble_v2_debug.jsonl` (v1: `ensemble_debug.jsonl`).
+
+**Đã kiểm chứng rằng việc tách không đổi hành vi** (so với bản v2 ngay trước khi tách, commit `261b6eb`):
+- Đầu ra trên **1038 ảnh** valid + test của ba bộ có nhãn và **121 khung** của hai video phòng thi (id, nhãn, điểm, phiếu từng nguồn, lý do, khung bao): **0 khác biệt**. Chạy bản cũ hai lần cho kết quả giống hệt nhau (đồng hồ treo tường được thay bằng thời gian video để kết quả xác định), nên phép so sánh có ý nghĩa.
+- `DifferentialTests`: từng hàm chép phải cho kết quả y hệt hàm gốc của v1 trên dữ liệu ngẫu nhiên (hình học, phiếu, đo quay đầu, cổng chuyển động, kích thước ảnh, vẽ và đóng gói theo từng byte). Cố ý làm sai 8 chỗ khác nhau đều bị bắt.
+- `SelfContainedTests`: file v2 không chứa import v1 (phân tích cú pháp), nạp v2 trong tiến trình mới không kéo v1 vào, và đăng ký mô hình của v2 chỉ liệt kê trọng số của v2.
+- Công cụ `eval_by_group.py` đo v2 ra báo cáo trùng khít báo cáo đã commit.
 
 ## Chạy lại phép đo
 

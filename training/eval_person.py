@@ -64,7 +64,7 @@ def evaluate(name, weights, mapping, items, imgsz, conf, iou_nms):
     for img, gts in items:
         frame = cv2.imread(str(img))
         t = time.perf_counter()
-        r = model.predict(frame, conf=conf, iou=iou_nms, imgsz=imgsz, verbose=False, device='cpu')[0]
+        r = model.predict(frame, conf=conf, iou=iou_nms, imgsz=imgsz, verbose=False, device=runtime.device(), half=runtime.use_half())[0]
         lat.append((time.perf_counter() - t) * 1000)
         preds = [(mapping[r.names[int(b.cls)]], b.xyxy[0].tolist()) for b in r.boxes if r.names[int(b.cls)] in mapping]
         for cls in set(mapping.values()):

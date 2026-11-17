@@ -1,6 +1,6 @@
 # MODEL_EVALUATION
 
-Kịch bản: [training/eval_person.py](training/eval_person.py) → [reports/person_eval.json](reports/person_eval.json). Máy: CPU, torch 2.15.0+cpu.
+Kịch bản: [training/eval_person.py](../../training/eval_person.py) → [reports/person_eval.json](../../reports/person_eval.json). Máy: CPU, torch 2.15.0+cpu.
 
 ## Tập đánh giá và giới hạn (đọc trước khi dùng số liệu)
 - **coco128** (128 ảnh COCO, 254 người: 87 small <32², 82 medium, 85 large; 8 điện thoại). Có ground truth nhưng **không phải ảnh phòng thi/webcam** và **là tập con của COCO train2017**: `yolo11n_coco` đã được huấn luyện trên chính các ảnh này ⇒ số của nó **lạc quan**, không dùng làm bằng chứng tổng quát hóa.
@@ -30,7 +30,7 @@ Không fine-tune xong (xem [TRAINING_REPORT.md](TRAINING_REPORT.md)), nên **kh�
 Server-side đo qua `tests/smoke_server.py` (CPU): `person_coco` @960 ≈ 190–280 ms/khung; các model YOLO cũ ≈ 85–200 ms. Vòng lặp trình duyệt tuần tự (khung sau chỉ gửi khi khung trước xong) nên không có hàng đợi tăng vô hạn; FPS thực = min(FPS tối đa, 1/độ trễ). **FPS với webcam thật chưa đo.**
 
 ## Dataset mới `coco_person_phone` — tập test 153 ảnh (891 người, 31 điện thoại), COCO val2017 (model gốc chưa từng thấy)
-Số đo bằng `training/eval_person.py --split test`; kết quả: [reports/eval_baseline_cocopp_test.json](reports/eval_baseline_cocopp_test.json), [reports/eval_person_phone_v1_test.json](reports/eval_person_phone_v1_test.json). Ngưỡng 0,25, IoU ghép 0,5, CPU.
+Số đo bằng `training/eval_person.py --split test`; kết quả: [reports/eval_baseline_cocopp_test.json](../../reports/eval_baseline_cocopp_test.json), [reports/eval_person_phone_v1_test.json](../../reports/eval_person_phone_v1_test.json). Ngưỡng 0,25, IoU ghép 0,5, CPU.
 
 | Mô hình | imgsz | Precision người | Recall người | Recall small / medium / large | Recall điện thoại | Độ trễ TB (ms) |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -44,7 +44,7 @@ Số đo bằng `training/eval_person.py --split test`; kết quả: [reports/ev
 (Độ trễ chênh giữa hai lần đo do CPU bận khi train/đo song song.) **Kết luận:** model fine-tune v1 tệ hơn model gốc ở mọi nhóm kích thước và với điện thoại nên **không thay thế** model nào. Được giữ trong danh sách chỉ để thể hiện đã có dataset/train mới. Mẫu điện thoại chỉ 31 nên số điện thoại không chắc chắn.
 
 ## Hiệu chỉnh ngưỡng để giảm báo nhầm (`person_coco`, imgsz 960)
-Quét ngưỡng trên **val** (153 ảnh), kiểm tra lại trên **test** (153 ảnh): [reports/conf_sweep_person_coco_val.json](reports/conf_sweep_person_coco_val.json), [reports/conf_sweep_person_coco_test.json](reports/conf_sweep_person_coco_test.json). Kết quả hai tập nhất quán (đánh đổi precision/recall tương tự).
+Quét ngưỡng trên **val** (153 ảnh), kiểm tra lại trên **test** (153 ảnh): [reports/conf_sweep_person_coco_val.json](../../reports/conf_sweep_person_coco_val.json), [reports/conf_sweep_person_coco_test.json](../../reports/conf_sweep_person_coco_test.json). Kết quả hai tập nhất quán (đánh đổi precision/recall tương tự).
 
 | conf (người, test) | Precision | Recall | Hộp sai (FP) |
 | --- | --- | --- | --- |
@@ -54,9 +54,9 @@ Quét ngưỡng trên **val** (153 ảnh), kiểm tra lại trên **test** (153 
 | 0,55 | 0,91 | 0,43 | 37 |
 | 0,65 | 0,95 | 0,35 | 16 |
 
-Không có một ngưỡng chung tốt cho mọi cảnh báo, nên dùng ngưỡng riêng (`CALIBRATION` trong [app/live/alerts.py](app/live/alerts.py)): có người ≥0,25 (ít báo "không thấy người" nhầm), đếm "nhiều người" ≥0,50 (ít báo dư người), điện thoại ≥0,35, hộp hiển thị người ≥0,35. Thanh ngưỡng của giao diện bị khóa với model này.
+Không có một ngưỡng chung tốt cho mọi cảnh báo, nên dùng ngưỡng riêng (`CALIBRATION` trong [app/live/alerts.py](../../app/live/alerts.py)): có người ≥0,25 (ít báo "không thấy người" nhầm), đếm "nhiều người" ≥0,50 (ít báo dư người), điện thoại ≥0,35, hộp hiển thị người ≥0,35. Thanh ngưỡng của giao diện bị khóa với model này.
 
-Tỷ lệ báo nhầm **trên từng khung hình** (test, [reports/frame_alarm_eval.json](reports/frame_alarm_eval.json), `training/frame_alarm_eval.py`; một khung, chưa qua xác nhận đa khung):
+Tỷ lệ báo nhầm **trên từng khung hình** (test, [reports/frame_alarm_eval.json](../../reports/frame_alarm_eval.json), `training/frame_alarm_eval.py`; một khung, chưa qua xác nhận đa khung):
 | Tín hiệu | Ngưỡng chung 0,25 | Ngưỡng hiệu chỉnh |
 | --- | --- | --- |
 | Báo "nhiều người" nhầm (41 khung có đúng 1 người) | 14,6 % (6 khung) | **7,3 %** (3 khung) |

@@ -57,19 +57,19 @@ ENSEMBLES = ('ensemble', 'ensemble_v2')
 
 
 def ensemble_module(key):
-    """Module của mô hình tổng hợp `key` (nhập muộn để tránh vòng import)."""
-    import ensemble
+    """Module của mô hình tổng hợp `key` (nhập muộn để tránh vòng import). Chỉ nhập đúng module cần dùng: chạy v2 không kéo v1 vào."""
     if key == 'ensemble_v2':
         import ensemble_v2
         return ensemble_v2
+    import ensemble
     return ensemble
 
 
 def required_files(key):
     """Mọi tệp trọng số cần có để chạy mô hình `key`."""
     if key in ENSEMBLES:
-        import ensemble
-        return sorted({p for k in ensemble_module(key).components() if k != 'pose' for p in required_files(k)} | {ensemble.POSE_WEIGHTS})
+        module = ensemble_module(key)
+        return sorted({p for k in module.components() if k != 'pose' for p in required_files(k)} | {module.POSE_WEIGHTS})
     files = [_path(key)]
     if key in POSE_KEYS:
         files.append(MODELS['paper'][1])
@@ -79,11 +79,11 @@ def required_files(key):
 def warm_model(key):
     """Nạp trước trọng số (một lần mỗi tiến trình) để khung đầu tiên không bị chậm."""
     if key in ENSEMBLES:
-        import ensemble
-        for k in ensemble_module(key).components():
+        module = ensemble_module(key)
+        for k in module.components():
             if k != 'pose':
                 warm_model(k)
-        runtime.get_yolo(ensemble.POSE_WEIGHTS)
+        runtime.get_yolo(module.POSE_WEIGHTS)
         return
     if key in POSE_KEYS:
         import paper_detector

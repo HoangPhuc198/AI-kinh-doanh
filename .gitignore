@@ -8,3 +8,7 @@ datasets/
 runs/
 *.zip
 training/__pycache__/
+.tmp/
+.pipcache/
+
+logs/

@@ -6,7 +6,7 @@ Ngày audit: 2026-11-13 · Branch: `main` (sạch, chỉ có `.omc/` chưa theo 
 
 | Lớp | Thực tế |
 | --- | --- |
-| Backend | `http.server.ThreadingHTTPServer` thuần (không Flask/FastAPI), [app/app.py](app/app.py) ~117 dòng, cổng 8765 |
+| Backend | `http.server.ThreadingHTTPServer` thuần (không Flask/FastAPI), [app/app.py](../../app/app.py) ~117 dòng, cổng 8765 |
 | Frontend | HTML + JS thuần, một tệp mỗi trang: `index.html` (kiểm thử), `report.html` (báo cáo) |
 | Mô hình | 3 YOLO detect (`training_yolo`, `gian_lan`, `yolo11_duyen`) và 2 mô hình YOLO11-Pose + KNN (`paper_knn.pkl`, `duyen_knn.joblib`) |
 | Thư viện CV | ultralytics (pin 8.3.185), torch (không pin), opencv-python, scikit-learn 1.7.2, pandas, joblib |
@@ -39,7 +39,7 @@ Nguồn thông báo: `torch/__init__.py:48-54` (đọc, không sửa). Torch đ�
 
 ## 4. Phương án sửa (đã thực hiện)
 
-- [app/runtime.py](app/runtime.py): import torch + ultralytics **đúng một lần**, có khóa, ở luồng chính lúc khởi động; lỗi gốc được lưu và ném lại (`TorchUnavailable.__cause__`), không bao giờ import lại. Registry mô hình có khóa (mỗi trọng số nạp một lần), `inference_lock` tuần tự hóa suy luận.
+- [app/runtime.py](../../app/runtime.py): import torch + ultralytics **đúng một lần**, có khóa, ở luồng chính lúc khởi động; lỗi gốc được lưu và ném lại (`TorchUnavailable.__cause__`), không bao giờ import lại. Registry mô hình có khóa (mỗi trọng số nạp một lần), `inference_lock` tuần tự hóa suy luận.
 - `app.py main()`: preflight torch; lỗi → in lỗi gốc, thoát mã 1.
 - `paper_detector.py`: bỏ `lru_cache` và import cấp module; dùng registry; pose nạp một lần.
 - Không đổi phiên bản torch/ultralytics (chưa có bằng chứng tương thích sai).

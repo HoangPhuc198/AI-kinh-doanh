@@ -105,7 +105,7 @@ Chưa hỗ trợ: hướng đầu/ánh nhìn (không có mô hình được ki�
 
 ## Lỗi PyTorch "can only be initialized once per process"
 
-Máy chủ nay import PyTorch/Ultralytics đúng một lần khi khởi động (`app/runtime.py`) và in lỗi gốc nếu lần import đó thất bại, thay vì để từng request import lại. Nếu thấy dòng `KHÔNG import được PyTorch/Ultralytics`, lỗi in kèm là nguyên nhân thật (thường là thiếu Visual C++ Redistributable, thiếu RAM/pagefile hoặc cài torch hỏng); cài lại môi trường `.venv` rồi chạy lại. Chi tiết: [AUDIT_REPORT.md](AUDIT_REPORT.md).
+Máy chủ nay import PyTorch/Ultralytics đúng một lần khi khởi động (`app/runtime.py`) và in lỗi gốc nếu lần import đó thất bại, thay vì để từng request import lại. Nếu thấy dòng `KHÔNG import được PyTorch/Ultralytics`, lỗi in kèm là nguyên nhân thật (thường là thiếu Visual C++ Redistributable, thiếu RAM/pagefile hoặc cài torch hỏng); cài lại môi trường `.venv` rồi chạy lại. Chi tiết: [AUDIT_REPORT.md](docs/reports/AUDIT_REPORT.md).
 
 ## Windows: đường dẫn quá dài (MAX_PATH)
 

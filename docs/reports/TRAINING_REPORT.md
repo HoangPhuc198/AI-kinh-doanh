@@ -5,7 +5,7 @@
 Lý do: (1) chưa có dataset phù hợp trong dự án và chưa được xác nhận giấy phép/dung lượng để tải; (2) PyTorch trên máy là bản CPU (`cuda=False`) dù có GTX 1650 (4 GB) — train 960 px trên CPU với 7,4 GB RAM không thực tế.
 
 ## Đã làm và đã kiểm chứng
-- [training/train.py](training/train.py): fine-tune YOLO11 từ `models/yolo11n_coco.pt`; seed cố định + `deterministic`, early stopping (`--patience`, mặc định 15), trần epoch 300, checkpoint `last.pt`/`best.pt` (+ `--resume`), augmentation có kiểm soát (HSV, scale 0,6, mosaic, random erasing 0,3, không xoay/lật dọc), ghi `training_run.json` (cấu hình, seed, phiên bản torch/ultralytics/python, thiết bị, thời gian, metrics val/test).
+- [training/train.py](../../training/train.py): fine-tune YOLO11 từ `models/yolo11n_coco.pt`; seed cố định + `deterministic`, early stopping (`--patience`, mặc định 15), trần epoch 300, checkpoint `last.pt`/`best.pt` (+ `--resume`), augmentation có kiểm soát (HSV, scale 0,6, mosaic, random erasing 0,3, không xoay/lật dọc), ghi `training_run.json` (cấu hình, seed, phiên bản torch/ultralytics/python, thiết bị, thời gian, metrics val/test).
 - **Smoke test pipeline:** 1 epoch, imgsz 320, 44 ảnh, CPU trên `datasets/coco128_split` chạy trọn: train → val → test → ghi JSON. Metrics của lần chạy này **vô nghĩa** (model đã học các ảnh đó, tập test 19 ảnh) và không dùng ở đâu.
 - **Chưa kiểm chứng:** `--resume` (chưa ngắt/tiếp tục thật), chạy trên GPU/Colab.
 

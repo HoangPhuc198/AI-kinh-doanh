@@ -1,0 +1,211 @@
+﻿giay,nguoi,ket_luan,diem_cua_so,bang_chung
+0.0,1,Bình thường,0.0,
+0.0,2,Bình thường,0.0,
+0.0,3,Bình thường,0.3,Quay/nghiêng đầu (0.80)
+0.0,4,Bình thường,0.0,
+0.0,5,Bình thường,0.0,
+0.2,1,Bình thường,0.0,
+0.2,2,Bình thường,0.0,
+0.2,3,Bình thường,0.3,Quay/nghiêng đầu (0.80)
+0.2,4,Bình thường,0.0,
+0.2,5,Bình thường,0.0,
+0.4,1,Bình thường,0.0,
+0.4,4,Bình thường,0.0,
+0.4,3,Bình thường,0.3,Quay/nghiêng đầu (0.80)
+0.4,2,Bình thường,0.0,
+0.4,5,Bình thường,0.0,
+0.6,1,Bình thường,0.0,
+0.6,4,Bình thường,0.0,
+0.6,3,Bình thường,0.3,Quay/nghiêng đầu (0.80)
+0.6,2,Bình thường,0.0,
+0.6,5,Bình thường,0.0,
+0.8,1,Bình thường,0.0,
+0.8,3,Bình thường,0.3,Quay/nghiêng đầu (0.80)
+0.8,2,Bình thường,0.0,
+0.8,4,Bình thường,0.0,
+0.8,5,Bình thường,0.0,
+0.8,6,Bình thường,0.0,
+1.0,1,Bình thường,0.0,
+1.0,3,Nghi ngờ,0.3,Quay/nghiêng đầu (0.80)
+1.0,2,Bình thường,0.0,
+1.0,4,Bình thường,0.0,
+1.0,5,Bình thường,0.0,
+1.0,6,Bình thường,0.0,
+1.2,1,Bình thường,0.0,
+1.2,3,Nghi ngờ,0.3,Quay/nghiêng đầu (0.80)
+1.2,2,Bình thường,0.0,
+1.2,4,Bình thường,0.0,
+1.2,5,Bình thường,0.0,
+1.2,6,Bình thường,0.0,
+1.4,1,Bình thường,0.0,
+1.4,3,Nghi ngờ,0.263,
+1.4,4,Bình thường,0.0,Quay/nghiêng đầu (0.06)
+1.4,2,Bình thường,0.0,
+1.4,5,Bình thường,0.0,
+1.6,1,Bình thường,0.0,
+1.6,3,Nghi ngờ,0.233,
+1.6,4,Bình thường,0.0,Quay/nghiêng đầu (0.06)
+1.6,2,Bình thường,0.0,
+1.6,5,Bình thường,0.0,
+1.8,1,Bình thường,0.0,
+1.8,3,Nghi ngờ,0.21,
+1.8,4,Bình thường,0.0,Quay/nghiêng đầu (0.06)
+1.8,2,Bình thường,0.0,
+1.8,5,Bình thường,0.0,
+2.0,1,Bình thường,0.0,
+2.0,3,Nghi ngờ,0.218,Quay/nghiêng đầu (1.00)
+2.0,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+2.0,2,Bình thường,0.0,
+2.0,5,Bình thường,0.0,Quay/nghiêng đầu (0.27)
+2.2,1,Bình thường,0.0,
+2.2,3,Nghi ngờ,0.225,Quay/nghiêng đầu (1.00)
+2.2,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+2.2,2,Bình thường,0.0,
+2.2,5,Bình thường,0.0,Quay/nghiêng đầu (0.27)
+2.4,1,Bình thường,0.0,
+2.4,3,Nghi ngờ,0.231,Quay/nghiêng đầu (1.00)
+2.4,4,Bình thường,0.0,
+2.4,2,Bình thường,0.0,
+2.4,5,Bình thường,0.0,Quay/nghiêng đầu (0.46)
+2.6,1,Bình thường,0.0,
+2.6,3,Nghi ngờ,0.236,Quay/nghiêng đầu (1.00)
+2.6,4,Bình thường,0.0,
+2.6,2,Bình thường,0.0,
+2.6,5,Bình thường,0.0,Quay/nghiêng đầu (0.46)
+2.8,1,Bình thường,0.0,
+2.8,3,Nghi ngờ,0.24,Quay/nghiêng đầu (1.00)
+2.8,4,Bình thường,0.0,
+2.8,2,Bình thường,0.0,
+2.8,5,Bình thường,0.0,Quay/nghiêng đầu (0.46)
+3.0,1,Bình thường,0.0,
+3.0,3,Nghi ngờ,0.244,Quay/nghiêng đầu (1.00)
+3.0,4,Bình thường,0.0,
+3.0,2,Bình thường,0.0,
+3.0,5,Bình thường,0.0,Quay/nghiêng đầu (0.46)
+3.2,1,Bình thường,0.0,
+3.2,3,Nghi ngờ,0.247,Quay/nghiêng đầu (0.80)
+3.2,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+3.2,2,Bình thường,0.0,
+3.2,5,Bình thường,0.0,
+3.4,1,Bình thường,0.0,
+3.4,3,Nghi ngờ,0.25,Quay/nghiêng đầu (0.80)
+3.4,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+3.4,2,Bình thường,0.0,
+3.4,5,Bình thường,0.0,
+3.6,1,Bình thường,0.0,
+3.6,3,Nghi ngờ,0.253,Quay/nghiêng đầu (0.80)
+3.6,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+3.6,2,Bình thường,0.0,
+3.6,5,Bình thường,0.0,
+3.8,1,Bình thường,0.0,
+3.8,3,Nghi ngờ,0.255,Quay/nghiêng đầu (0.80)
+3.8,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+3.8,2,Bình thường,0.0,
+3.8,5,Bình thường,0.0,
+4.0,1,Bình thường,0.0,
+4.0,2,Bình thường,0.0,
+4.0,3,Nghi ngờ,0.257,Quay/nghiêng đầu (0.80)
+4.0,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+4.0,5,Bình thường,0.0,
+4.2,1,Bình thường,0.0,
+4.2,2,Bình thường,0.0,
+4.2,3,Nghi ngờ,0.259,Quay/nghiêng đầu (0.80)
+4.2,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+4.2,5,Bình thường,0.0,
+4.4,1,Bình thường,0.0,
+4.4,2,Bình thường,0.0,
+4.4,3,Nghi ngờ,0.261,Quay/nghiêng đầu (0.80)
+4.4,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+4.4,5,Bình thường,0.0,
+4.6,1,Bình thường,0.0,
+4.6,2,Bình thường,0.0,
+4.6,3,Nghi ngờ,0.263,Quay/nghiêng đầu (0.80)
+4.6,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+4.6,5,Bình thường,0.0,
+4.8,1,Bình thường,0.0,
+4.8,2,Bình thường,0.0,
+4.8,3,Nghi ngờ,0.264,Quay/nghiêng đầu (0.80)
+4.8,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+4.8,5,Bình thường,0.0,
+5.0,1,Bình thường,0.0,
+5.0,3,Nghi ngờ,0.265,Quay/nghiêng đầu (0.80); Điện thoại gần người (0.43)
+5.0,2,Bình thường,0.0,
+5.0,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+5.0,5,Bình thường,0.0,Quay/nghiêng đầu (0.38)
+5.0,7,Bình thường,0.0,
+5.21,1,Bình thường,0.0,
+5.21,3,Nghi ngờ,0.267,Quay/nghiêng đầu (0.80); Điện thoại gần người (0.43)
+5.21,2,Bình thường,0.0,
+5.21,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+5.21,5,Bình thường,0.0,Quay/nghiêng đầu (0.38)
+5.21,7,Bình thường,0.0,
+5.41,1,Bình thường,0.0,
+5.41,3,Nghi ngờ,0.268,Quay/nghiêng đầu (0.80)
+5.41,5,Bình thường,0.0,Quay/nghiêng đầu (0.38)
+5.41,2,Bình thường,0.0,
+5.41,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+5.41,7,Bình thường,0.0,
+5.61,1,Bình thường,0.0,
+5.61,3,Nghi ngờ,0.269,Quay/nghiêng đầu (0.80)
+5.61,5,Bình thường,0.0,Quay/nghiêng đầu (0.38)
+5.61,2,Bình thường,0.0,
+5.61,4,Bình thường,0.0,KNN Duyên: tư thế nghi vấn
+5.61,7,Bình thường,0.0,
+5.81,1,Bình thường,0.0,
+5.81,3,Nghi ngờ,0.27,Quay/nghiêng đầu (0.80)
+5.81,4,Bình thường,0.5,KNN Duyên: tư thế nghi vấn; Quay/nghiêng đầu (1.00); Hai người quay về phía nhau (0.66)
+5.81,5,Bình thường,0.5,Quay/nghiêng đầu (0.32); Hai người quay về phía nhau (0.66)
+5.81,2,Bình thường,0.0,
+5.81,7,Bình thường,0.0,
+6.01,1,Bình thường,0.0,
+6.01,3,Nghi ngờ,0.271,Quay/nghiêng đầu (0.80)
+6.01,4,Nghi ngờ,0.667,KNN Duyên: tư thế nghi vấn; Quay/nghiêng đầu (1.00); Hai người quay về phía nhau (0.66)
+6.01,5,Nghi ngờ,0.667,Quay/nghiêng đầu (0.32); Hai người quay về phía nhau (0.66)
+6.01,2,Bình thường,0.0,
+6.01,7,Bình thường,0.0,
+6.21,1,Bình thường,0.0,Điện thoại gần người (0.44)
+6.21,4,Nghi ngờ,0.75,KNN Duyên: tư thế nghi vấn; Quay/nghiêng đầu (1.00); Hai người quay về phía nhau (0.66)
+6.21,3,Nghi ngờ,0.272,Quay/nghiêng đầu (0.80)
+6.21,2,Bình thường,0.0,
+6.21,5,Nghi ngờ,0.75,Quay/nghiêng đầu (0.32); Hai người quay về phía nhau (0.66)
+6.21,7,Bình thường,0.0,
+6.41,1,Bình thường,0.0,
+6.41,4,Bình thường,0.6,
+6.41,2,Bình thường,0.0,
+6.41,3,Nghi ngờ,0.273,Quay/nghiêng đầu (0.80)
+6.41,5,Bình thường,0.6,
+6.41,7,Bình thường,0.0,
+6.61,1,Bình thường,0.0,
+6.61,4,Nghi ngờ,0.5,
+6.61,2,Bình thường,0.0,
+6.61,3,Nghi ngờ,0.274,Quay/nghiêng đầu (0.80)
+6.61,5,Nghi ngờ,0.5,
+6.61,7,Bình thường,0.0,
+6.81,1,Bình thường,0.0,Điện thoại gần người (0.41)
+6.81,4,Nghi ngờ,0.429,
+6.81,3,Nghi ngờ,0.274,Quay/nghiêng đầu (0.80)
+6.81,2,Bình thường,0.0,
+6.81,5,Nghi ngờ,0.429,
+6.81,7,Bình thường,0.0,
+7.01,1,Bình thường,0.0,Điện thoại gần người (0.41)
+7.01,4,Nghi ngờ,0.375,
+7.01,3,Nghi ngờ,0.275,Quay/nghiêng đầu (0.80)
+7.01,2,Bình thường,0.0,
+7.01,5,Nghi ngờ,0.375,
+7.01,7,Bình thường,0.0,
+7.21,1,Bình thường,0.0,Điện thoại gần người (0.41)
+7.21,4,Bình thường,0.0,
+7.21,3,Nghi ngờ,0.276,Quay/nghiêng đầu (0.80)
+7.21,2,Bình thường,0.0,
+7.21,5,Bình thường,0.0,
+7.21,7,Bình thường,0.0,
+7.41,1,Bình thường,0.0,
+7.41,4,Bình thường,0.0,
+7.41,3,Nghi ngờ,0.276,Quay/nghiêng đầu (1.00)
+7.41,2,Bình thường,0.0,
+7.41,5,Bình thường,0.0,
+7.61,1,Bình thường,0.0,
+7.61,4,Bình thường,0.0,
+7.61,3,Nghi ngờ,0.277,Quay/nghiêng đầu (1.00)
+7.61,2,Bình thường,0.0,
+7.61,5,Bình thường,0.0,

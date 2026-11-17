@@ -4,3 +4,7 @@ joblib>=1.3,<2
 pandas>=2.0,<3
 numpy>=1.24,<3
 opencv-python>=4.8,<5
+
+# PyTorch bản CUDA (GPU NVIDIA). Cài RIÊNG, cache/tmp đặt trong thư mục dự án:
+#   pip install --cache-dir .pipcache --index-url https://download.pytorch.org/whl/cu130 torch==2.14.1 torchvision==0.29.1
+# KHÔNG bật FP16 (EXAMVISION_HALF=1) trên GTX 16xx: cho kết quả sai (xem HANDOVER.md).

@@ -1,23 +1,23 @@
 {
  "images": 153,
- "persons_total": 721,
+ "persons_total": 799,
  "labels": {
-  "Bình thường": 705,
-  "Nghi vấn gian lận": 7,
-  "cell phone": 16,
-  "Cần chú ý": 9
+  "Bình thường": 775,
+  "Nghi ngờ": 24,
+  "cell phone": 23
  },
  "invalid_boxes": 0,
  "invalid_scores": 0,
  "source_errors": {},
- "images_with_suspect_flag": 7,
- "images_with_watch_flag": 9,
- "latency_ms_mean": 1129,
- "latency_ms_p95": 1779,
+ "images_with_suspect_flag": 0,
+ "images_with_watch_flag": 16,
+ "latency_ms_mean": 193,
+ "latency_ms_p95": 359,
  "per_source_ms_mean": {
-  "person_coco": 449,
-  "yolo_duyen": 224,
-  "duyen": 246,
-  "gianlan": 209
+  "person_coco": 174,
+  "yolo_duyen": 139,
+  "gianlan": 139,
+  "pose": 152,
+  "duyen": 64
  }
 }

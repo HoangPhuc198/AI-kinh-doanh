@@ -25,7 +25,7 @@ for p in imgs:
         if 'votes' in d: allvotes.append(d['votes'])
         if d['label'] != 'cell phone': npers += 1
         seen.add(d['label'])
-    per_img_flag['suspect'] += 'Nghi vấn gian lận' in seen; per_img_flag['watch'] += 'Cần chú ý' in seen
+    per_img_flag['suspect'] += 'Gian lận' in seen; per_img_flag['watch'] += 'Nghi ngờ' in seen  # ảnh đơn: kết luận 1 khung (tối đa Nghi ngờ)
 out = {'images': len(imgs), 'persons_total': npers, 'labels': labels, 'invalid_boxes': bad_boxes, 'invalid_scores': bad_scores, 'source_errors': errs,
        'images_with_suspect_flag': per_img_flag['suspect'], 'images_with_watch_flag': per_img_flag['watch'],
        'latency_ms_mean': round(float(np.mean(ms))), 'latency_ms_p95': round(float(np.percentile(ms, 95))), 'per_source_ms_mean': {k: round(float(np.mean(v))) for k, v in srcms.items()}}

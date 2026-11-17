@@ -1,0 +1,40 @@
+{
+ "dataset": "exam_cheating.v2i.yolov11",
+ "images": 78,
+ "iou": 0.4,
+ "models": {
+  "ensemble (độ nhạy 0.0)": {
+   "false_alarm": 0.0,
+   "recall": 0.217,
+   "precision": 1.0,
+   "person_found": 0.979,
+   "ms_per_image": 253,
+   "tp": 10,
+   "fn": 36,
+   "fp": 0,
+   "tn": 97
+  },
+  "ensemble (độ nhạy 0.5)": {
+   "false_alarm": 0.01,
+   "recall": 0.326,
+   "precision": 0.938,
+   "person_found": 0.979,
+   "ms_per_image": 258,
+   "tp": 15,
+   "fn": 31,
+   "fp": 1,
+   "tn": 96
+  },
+  "ensemble (độ nhạy 1.0)": {
+   "false_alarm": 0.021,
+   "recall": 0.522,
+   "precision": 0.923,
+   "person_found": 0.979,
+   "ms_per_image": 272,
+   "tp": 24,
+   "fn": 22,
+   "fp": 2,
+   "tn": 95
+  }
+ }
+}
